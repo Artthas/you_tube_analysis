@@ -3,11 +3,11 @@ import requests
 from bs4 import BeautifulSoup
 
 url = 'https://www.youtube.com/@chestniyblog/videos'
-
+url2 = 'https://www.youtube.com/@nickiminaj/videos'
 headers = {
     'authority': 'www.youtube.com',
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-language': 'ru',
+    'accept-language': 'en',
     'cache-control': 'max-age=0',
     # 'cookie': 'GPS=1; YSC=lKgeMWRqPYw; VISITOR_INFO1_LIVE=kh6IXtAFs8w; PREF=f4=4000000&tz=Europe.Belgrade',
     'dnt': '1',
@@ -37,15 +37,16 @@ proxies = {
     'https': proxy_url,
 }
 
-# response = requests.get('https://www.youtube.com/@chestniyblog/videos',headers=headers)
+response = requests.get(url2, headers=headers, proxies=proxies)
 
 
 # with open('page.html', 'a') as f:
 #     f.write(response.text)
 
-with open('page.html', 'r') as f:
-    soup = BeautifulSoup(f.read(), 'lxml')
+# with open('page.html', 'r') as f:
+#     soup = BeautifulSoup(f.read(), 'lxml')
 
+soup = BeautifulSoup(response.text, 'lxml')
 scripts = soup.find_all('script')
 for script in scripts:
     if 'ytInitialData' in script.text:
