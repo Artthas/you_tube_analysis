@@ -46,17 +46,17 @@ headers = {
     'x-youtube-client-version': '2.20230725.07.00',
 }
 
-params = {
-    'key': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8',
-    'prettyPrint': 'false',
-}
+# params = {
+#     'key': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8',
+#     'prettyPrint': 'false',
+# }
 
 json_data = {
     'context': {
         'client': {
-            'hl': 'ru',
-            'gl': 'ME',
-            'remoteHost': '62.4.55.242',
+            'hl': 'en',
+            # 'gl': 'ME',
+            # 'remoteHost': '62.4.55.242',
             'deviceMake': '',
             'deviceModel': '',
             'visitorData': 'Cgtjdk9QbFZtZ2M4QSit9oqmBg%3D%3D',
