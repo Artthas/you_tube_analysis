@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BACK_API_URL: ${NEXT_PUBLIC_BACK_API_URL}
+    env_file:
+      - .env
+    volumes:
+      - ./front:/app
+      - /app/.next
+    ports:
+      - "3000:3000"
+    command: ${CLIENT_RUN_COMMAND}
+
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+      args:
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+    env_file:
+      - .env
+    volumes:
+      - ./back:/app
+    ports:
+      - "3001:3001"
+    command: ${SERVER_RUN_COMMAND}
