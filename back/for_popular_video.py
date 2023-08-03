@@ -1,10 +1,7 @@
-import requests
+import aiohttp
 import json
 
-
-
-
-def find_popular_video_titles(channel_name, token):
+async def find_popular_video_titles(channel_name, token):
     headers = {
         'authority': 'www.youtube.com',
         'accept': '*/*',
@@ -36,24 +33,16 @@ def find_popular_video_titles(channel_name, token):
         'continuation': f'{token}',
     }
 
-    response = requests.post(
-        'https://www.youtube.com/youtubei/v1/browse',
-        headers=headers,
-        json=json_data,
-    )
-
     video_titles = []
     try:
-        items = response.json()['onResponseReceivedActions'][1]['reloadContinuationItemsCommand']['continuationItems']
-        for item in items[:5]:
-            title = item['richItemRenderer']['content']['videoRenderer']['title']['runs'][0]['text']
-            video_titles.append(title)
+        async with aiohttp.ClientSession() as session:
+            async with session.post('https://www.youtube.com/youtubei/v1/browse', headers=headers, json=json_data) as response:
+                data = await response.json()
+                items = data['onResponseReceivedActions'][1]['reloadContinuationItemsCommand']['continuationItems']
+                for item in items[:5]:
+                    title = item['richItemRenderer']['content']['videoRenderer']['title']['runs'][0]['text']
+                    video_titles.append(title)
     except Exception as e:
         print(f"An error occurred: {e}")
 
     return video_titles
-
-# channel_name = 'nickiminaj'
-# token = 'YOUR_TOKEN_HERE'
-# titles = find_popular_video_titles(channel_name, token)
-# print(titles)
