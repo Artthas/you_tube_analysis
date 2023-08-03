@@ -31,8 +31,8 @@ proxies = {
     'https': proxy_url,
 }
 
-response = requests.get(f'https://www.youtube.com/@{channel_name3}/videos', headers=headers, proxies=proxies)
-
+response = requests.get(f'https://www.youtube.com/@{channel_name1}/videos', headers=headers, proxies=proxies)
+print(response.url)
 
 # with open('page.html', 'a') as f:
 #     f.write(response.text)nickiminaj
@@ -101,15 +101,7 @@ print(keywords_list)
 """
 
 def find_key(input_dict, target_key):
-    # if target_key in input_dict:
-    #     yield input_dict[target_key]
-    # elif isinstance(input_dict, dict):
-    #     for k, v in input_dict.items():
-    #         if isinstance(v, (dict, list)):
-    #             yield from find_key(v, target_key)
-    # elif isinstance(input_dict, list):
-    #     for item in input_dict:
-    #         yield from find_key(item, target_key)
+
     found_values = []
     if target_key in input_dict:
         found_values.append(input_dict[target_key])
@@ -160,11 +152,10 @@ def find_video_titles(data, max_titles=5):
 
 a = find_key(input_dict=data, target_key='continuationCommand')
 print(len(a))
-# for i in a:
-#     print(i['token'])
+for i in a:
+    print(i)
 
 
 
-
-titles = find_video_titles(data)
-print(titles)
+# titles = find_video_titles(data)
+# print(titles)

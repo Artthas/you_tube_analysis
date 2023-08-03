@@ -103,76 +103,76 @@ json_data = {
             'clickTrackingParams': 'CLoBEP1dGAAiEwicvZnqxa-AAxVn1REIHc3JBiI=',
         },
         'adSignalsInfo': {
-            'params': [
-                {
-                    'key': 'dt',
-                    'value': '1690483502077',
-                },
-                {
-                    'key': 'flash',
-                    'value': '0',
-                },
-                {
-                    'key': 'frm',
-                    'value': '0',
-                },
-                {
-                    'key': 'u_tz',
-                    'value': '120',
-                },
-                {
-                    'key': 'u_his',
-                    'value': '11',
-                },
-                {
-                    'key': 'u_h',
-                    'value': '864',
-                },
-                {
-                    'key': 'u_w',
-                    'value': '1536',
-                },
-                {
-                    'key': 'u_ah',
-                    'value': '864',
-                },
-                {
-                    'key': 'u_aw',
-                    'value': '1536',
-                },
-                {
-                    'key': 'u_cd',
-                    'value': '24',
-                },
-                {
-                    'key': 'bc',
-                    'value': '31',
-                },
-                {
-                    'key': 'bih',
-                    'value': '726',
-                },
-                {
-                    'key': 'biw',
-                    'value': '927',
-                },
-                {
-                    'key': 'brdim',
-                    'value': '1536,29,1536,29,1536,0,1536,835,942,726',
-                },
-                {
-                    'key': 'vis',
-                    'value': '1',
-                },
-                {
-                    'key': 'wgl',
-                    'value': 'true',
-                },
-                {
-                    'key': 'ca_type',
-                    'value': 'image',
-                },
-            ],
+            # 'params': [
+            #     {
+            #         'key': 'dt',
+            #         'value': '1690483502077',
+            #     },
+            #     {
+            #         'key': 'flash',
+            #         'value': '0',
+            #     },
+            #     {
+            #         'key': 'frm',
+            #         'value': '0',
+            #     },
+            #     {
+            #         'key': 'u_tz',
+            #         'value': '120',
+            #     },
+            #     {
+            #         'key': 'u_his',
+            #         'value': '11',
+            #     },
+            #     {
+            #         'key': 'u_h',
+            #         'value': '864',
+            #     },
+            #     {
+            #         'key': 'u_w',
+            #         'value': '1536',
+            #     },
+            #     {
+            #         'key': 'u_ah',
+            #         'value': '864',
+            #     },
+            #     {
+            #         'key': 'u_aw',
+            #         'value': '1536',
+            #     },
+            #     {
+            #         'key': 'u_cd',
+            #         'value': '24',
+            #     },
+            #     {
+            #         'key': 'bc',
+            #         'value': '31',
+            #     },
+            #     {
+            #         'key': 'bih',
+            #         'value': '726',
+            #     },
+            #     {
+            #         'key': 'biw',
+            #         'value': '927',
+            #     },
+            #     {
+            #         'key': 'brdim',
+            #         'value': '1536,29,1536,29,1536,0,1536,835,942,726',
+            #     },
+            #     {
+            #         'key': 'vis',
+            #         'value': '1',
+            #     },
+            #     {
+            #         'key': 'wgl',
+            #         'value': 'true',
+            #     },
+            #     {
+            #         'key': 'ca_type',
+            #         'value': 'image',
+            #     },
+            # ],
         },
     },
     'continuation': '4qmFsgJkEhhVQzNqT2Q3R1VNaHBnSlJCaGlMenVMc2caSDhnWXVHaXg2S2hJbUNpUTJOR1F6WVRWaE5TMHdNREF3TFRJM01UTXRZbU5qT0MweU5EQTFPRGczTVdaak0yTVlBZyUzRCUzRA',
