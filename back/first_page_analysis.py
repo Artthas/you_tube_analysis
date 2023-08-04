@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import aiohttp
 import re
-
+from chat_gpt_api import get_keywords
 
 async def get_channel_data(channel_name):
     '''
@@ -166,7 +166,9 @@ def general_func(channel_name):
     if len(keys) > 5:
         # логика для того что бы искать подходящие видео, использую ключевые слова канала
         # print('Есть ключевые слова на канале')
-        return keys
+        keywords_string = " | ".join(keys)
+
+        return keywords_string
 
 
     else:
@@ -181,7 +183,11 @@ def general_func(channel_name):
             popular_titles = asyncio.run(find_popular_video_titles(channel_name=channel_name, token=token_to_popular))
             # print(popular_titles)
         all_titles = video_titles_first + popular_titles
-        return all_titles
+        return asyncio.run(get_keywords(all_titles))
+
+
+
+
 
 
 channel_name1 = 'chestniyblog'
@@ -190,3 +196,5 @@ channel_name3 = 'DontTellComedy'
 channel_name4 = 'python228dlapypsikov'
 channel_name5 = 'tkhirianov'
 
+keys = general_func(channel_name3)
+print(keys)
