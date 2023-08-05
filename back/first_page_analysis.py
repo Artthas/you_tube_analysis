@@ -190,11 +190,11 @@ def general_func(channel_name):
 
 
 
-channel_name1 = 'chestniyblog'
-channel_name2 = 'nickiminaj'
-channel_name3 = 'DontTellComedy'
-channel_name4 = 'python228dlapypsikov'
-channel_name5 = 'tkhirianov'
+# channel_name1 = 'chestniyblog'
+# channel_name2 = 'nickiminaj'
+# channel_name3 = 'DontTellComedy'
+# channel_name4 = 'python228dlapypsikov'
+# channel_name5 = 'tkhirianov'
 
-keys = general_func(channel_name3)
-print(keys)
+# keys = general_func(channel_name5)
+# print(keys)

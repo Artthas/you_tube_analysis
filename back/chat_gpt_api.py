@@ -2,8 +2,10 @@ import os
 import openai
 from aiohttp import ClientSession
 import re
+from dotenv import load_dotenv
 
-# openai.api_key = os.getenv("OPENAI_API_KEY")
+load_dotenv()
+openai.api_key = os.getenv("API_KEY")
 # openai.api_key = key2
 
 def format_keywords(content):
