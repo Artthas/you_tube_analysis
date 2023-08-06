@@ -1,16 +1,17 @@
-import asyncio
 import json
-import requests
 from bs4 import BeautifulSoup
 import aiohttp
 import re
 from chat_gpt_api import get_keywords
 
+
 async def get_channel_data(channel_name):
-    '''
-    :param channel_name: имя канала you_tube надо подставить вот сюда  'https://www.youtube.com/@{channel_name}/videos'
-    :return:
-    '''
+    """
+    Асинхронная функция для получения данных о видео на YouTube по имени канала.
+
+    :param channel_name: Имя канала на YouTube.
+    :return: Словарь с данными о видео на канале.
+    """
     headers = {
         'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -22,14 +23,22 @@ async def get_channel_data(channel_name):
         'Sec-Fetch-Site': 'same-origin',
         'Sec-Fetch-User': '?1',
     }
+    # Прокси-сервер для запроса
     proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
 
+    # Создание асинхронной сессии
     async with aiohttp.ClientSession() as session:
+        # Отправка GET-запроса к YouTube
         async with session.get(url=f'https://www.youtube.com/@{channel_name}/videos', headers=headers,
                                proxy=proxy_url) as response:
+            # Получение HTML-ответа
             html = await response.text()
+
+            # Парсинг HTML с использованием BeautifulSoup
             soup = BeautifulSoup(html, 'lxml')
             scripts = soup.find_all('script')
+
+            # Поиск скрипта, содержащего ytInitialData
             for script in scripts:
                 if 'ytInitialData' in script.text:
                     json_str = script.text
@@ -45,10 +54,6 @@ async def get_channel_data(channel_name):
 
 
 def find_keywords_in_page(data):
-    # title = data['microformat']['microformatDataRenderer']['title']
-    # channel_id = data['header']['c4TabbedHeaderRenderer']['channelHandleText']['runs'][0]['text']
-    # videos_count = data['header']['c4TabbedHeaderRenderer']['videosCountText']['runs'][0]['text']
-    # subscr_count = data['header']['c4TabbedHeaderRenderer']['subscriberCountText']['simpleText']
     try:
         keywords_from_meta = data['metadata']['channelMetadataRenderer']['keywords']
 
@@ -59,7 +64,13 @@ def find_keywords_in_page(data):
 
 
 def get_value_by_path(data, path):
-    """Вспомогательная функция для извлечения значения из словаря по заданному пути."""
+    """
+    Получает значение из словаря или списка, следуя указанному пути.
+
+    :param data: Словарь или список, из которого нужно извлечь значение.
+    :param path: Список ключей или индексов, указывающих путь к значению.
+    :return: Значение, найденное по указанному пути, или None, если путь не существует.
+    """
     for key in path:
         if isinstance(data, dict):
             data = data.get(key)
@@ -71,6 +82,13 @@ def get_value_by_path(data, path):
 
 
 def find_continuation_token(input_dict, target_key):
+    """
+    Рекурсивно ищет все значения в словаре по указанному ключу.
+
+    :param input_dict: Словарь для поиска.
+    :param target_key: Ключ, который нужно найти.
+    :return: Список всех найденных значений.
+    """
     found_values = []
     if target_key in input_dict:
         found_values.append(input_dict[target_key])
@@ -85,7 +103,13 @@ def find_continuation_token(input_dict, target_key):
 
 
 def find_video_titles(data, max_titles=5):
-    """Функция для извлечения заголовков видео из данных JSON."""
+    """
+    Ищет названия видео на странице канала YouTube.
+
+    :param data: Словарь с данными страницы.
+    :param max_titles: Максимальное количество названий, которые нужно вернуть.
+    :return: Список названий видео.
+    """
     path_to_titles = [
         "contents", "twoColumnBrowseResultsRenderer", "tabs", 1, "tabRenderer",
         "content", "richGridRenderer", "contents"
@@ -99,12 +123,12 @@ def find_video_titles(data, max_titles=5):
             title = get_value_by_path(content, title_path)
             if title:
                 titles.append(title)
-                # print(f"Title {i + 1}: {title}")
             if len(titles) >= max_titles:
                 break
     except Exception as e:
         print(f"An error occurred: {e}")
     return titles
+
 
 
 async def find_popular_video_titles(channel_name, token):
@@ -155,69 +179,18 @@ async def find_popular_video_titles(channel_name, token):
     return video_titles
 
 
-# def general_func(channel_name):
-#     '''
-#
-#     :param channel_name:  имя канала
-#     :return: возвращаем или ключевые слова или названия видео
-#     '''
-#     data = asyncio.run(get_channel_data(channel_name))
-#     keys = find_keywords_in_page(data)
-#     if len(keys) > 5:
-#         # логика для того что бы искать подходящие видео, использую ключевые слова канала
-#         # print('Есть ключевые слова на канале')
-#         keywords_string = " | ".join(keys)
-#
-#         return keywords_string
-#     else:
-#         # ищу названия
-#         video_titles_first = find_video_titles(data, max_titles=10)
-#         # print(video_titles_first)
-#         tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
-#         popular_titles = []
-#         if len(tokens) > 1:
-#             token_to_popular = tokens[2]['token']
-#             # print('ищем популярные видео')
-#             popular_titles = asyncio.run(find_popular_video_titles(channel_name=channel_name, token=token_to_popular))
-#             # print(popular_titles)
-#         all_titles = video_titles_first + popular_titles
-#         return asyncio.run(get_keywords(all_titles))
-
 async def general_func(channel_name):
-    '''
-    :param channel_name:  имя канала
-    :return: возвращаем или ключевые слова или названия видео
-    '''
     data = await get_channel_data(channel_name)
     keys = find_keywords_in_page(data)
     if len(keys) > 5:
-        # логика для того что бы искать подходящие видео, использую ключевые слова канала
-        # print('Есть ключевые слова на канале')
         keywords_string = " | ".join(keys)
         return keywords_string
     else:
-        # ищу названия
         video_titles_first = find_video_titles(data, max_titles=10)
-        # print(video_titles_first)
         tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
         popular_titles = []
         if len(tokens) > 1:
             token_to_popular = tokens[2]['token']
-            # print('ищем популярные видео')
             popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular)
-            # print(popular_titles)
         all_titles = video_titles_first + popular_titles
         return await get_keywords(all_titles)
-
-
-
-
-
-# channel_name1 = 'chestniyblog'
-# channel_name2 = 'nickiminaj'
-# channel_name3 = 'DontTellComedy'
-# channel_name4 = 'python228dlapypsikov'
-# channel_name5 = 'tkhirianov'
-
-# keys = general_func(channel_name5)
-# print(keys)
