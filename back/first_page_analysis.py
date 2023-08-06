@@ -155,22 +155,46 @@ async def find_popular_video_titles(channel_name, token):
     return video_titles
 
 
-def general_func(channel_name):
-    '''
+# def general_func(channel_name):
+#     '''
+#
+#     :param channel_name:  имя канала
+#     :return: возвращаем или ключевые слова или названия видео
+#     '''
+#     data = asyncio.run(get_channel_data(channel_name))
+#     keys = find_keywords_in_page(data)
+#     if len(keys) > 5:
+#         # логика для того что бы искать подходящие видео, использую ключевые слова канала
+#         # print('Есть ключевые слова на канале')
+#         keywords_string = " | ".join(keys)
+#
+#         return keywords_string
+#     else:
+#         # ищу названия
+#         video_titles_first = find_video_titles(data, max_titles=10)
+#         # print(video_titles_first)
+#         tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
+#         popular_titles = []
+#         if len(tokens) > 1:
+#             token_to_popular = tokens[2]['token']
+#             # print('ищем популярные видео')
+#             popular_titles = asyncio.run(find_popular_video_titles(channel_name=channel_name, token=token_to_popular))
+#             # print(popular_titles)
+#         all_titles = video_titles_first + popular_titles
+#         return asyncio.run(get_keywords(all_titles))
 
+async def general_func(channel_name):
+    '''
     :param channel_name:  имя канала
     :return: возвращаем или ключевые слова или названия видео
     '''
-    data = asyncio.run(get_channel_data(channel_name))
+    data = await get_channel_data(channel_name)
     keys = find_keywords_in_page(data)
     if len(keys) > 5:
         # логика для того что бы искать подходящие видео, использую ключевые слова канала
         # print('Есть ключевые слова на канале')
         keywords_string = " | ".join(keys)
-
         return keywords_string
-
-
     else:
         # ищу названия
         video_titles_first = find_video_titles(data, max_titles=10)
@@ -180,11 +204,10 @@ def general_func(channel_name):
         if len(tokens) > 1:
             token_to_popular = tokens[2]['token']
             # print('ищем популярные видео')
-            popular_titles = asyncio.run(find_popular_video_titles(channel_name=channel_name, token=token_to_popular))
+            popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular)
             # print(popular_titles)
         all_titles = video_titles_first + popular_titles
-        return asyncio.run(get_keywords(all_titles))
-
+        return await get_keywords(all_titles)
 
 
 

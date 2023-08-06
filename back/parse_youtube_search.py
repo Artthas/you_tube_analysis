@@ -89,16 +89,17 @@ def make_json(json_data, quantity):
 
     # Преобразуем список словарей в строку JSON с отступами в 4 пробела
     json_str = json.dumps(videos_data, indent=4, ensure_ascii=False)
-
+    json_write(json_str)
     # Выводим строку JSON в консоль
     # print(json_str)
     return json_str
 
 
-def general_YT(search_query, quantity):
-    content = asyncio.run(get_YT_search_html(search_query))
+async def general_YT(search_query, quantity):
+    content = await get_YT_search_html(search_query)
     json_data = return_json_dict(content)
     json_to_front = make_json(json_data, quantity)
+
     return json_to_front
 
 
