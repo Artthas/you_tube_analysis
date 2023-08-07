@@ -81,19 +81,26 @@ def get_nested(data, path):
     return data
 
 
+# def make_json(json_data, quantity):
+#     videos_data = []
+#     for i in range(quantity):
+#         video_data = extract_video_data(json_data, i)
+#         videos_data.append(video_data)  # Добавляем словарь с данными о видео в список
+#
+#     # Преобразуем список словарей в строку JSON с отступами в 4 пробела
+#     json_str = json.dumps(videos_data, indent=4, ensure_ascii=False)
+#     json_write(json_str)
+#     # Выводим строку JSON в консоль
+#     # print(json_str)
+#     return json_str
 def make_json(json_data, quantity):
     videos_data = []
     for i in range(quantity):
         video_data = extract_video_data(json_data, i)
         videos_data.append(video_data)  # Добавляем словарь с данными о видео в список
 
-    # Преобразуем список словарей в строку JSON с отступами в 4 пробела
-    json_str = json.dumps(videos_data, indent=4, ensure_ascii=False)
-    json_write(json_str)
-    # Выводим строку JSON в консоль
-    # print(json_str)
-    return json_str
-
+    # Возвращаем список словарей
+    return videos_data
 
 async def general_YT(search_query, quantity):
     content = await get_YT_search_html(search_query)
