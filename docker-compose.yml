@@ -15,7 +15,7 @@ services:
       - /app/.next
     ports:
       - "3000:3000"
-    command: ${CLIENT_RUN_COMMAND}
+    command: ${FRONT_RUN_COMMAND}
 
   back:
     build:
@@ -29,4 +29,4 @@ services:
       - ./back:/app
     ports:
       - "3001:3001"
-    command: ${SERVER_RUN_COMMAND}
+    command: ${BACK_RUN_COMMAND}
