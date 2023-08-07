@@ -16,7 +16,7 @@ charset-normalizer==3.2.0
 click==8.1.6
 dill==0.3.7
 exceptiongroup==1.1.2
-fastapi==0.101.0
+fastapi[all]==0.101.0
 file-io==0.4.6
 frozendict==2.3.8
 frozenlist==1.4.0
