@@ -49,7 +49,7 @@ export default function SearchResult() {
 
   return (
     <ul className={styles['main']}>
-      {searchResultMock?.map((item) =>
+      {searchResult?.map((item) =>
         <li className={styles['main-item']} key={item?.title_text}>
           <Link className={styles['main-item-link']} href={item?.video_url}>
             <Image
