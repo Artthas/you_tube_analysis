@@ -1,0 +1,46 @@
+.main {
+  list-style: none;
+}
+
+.main-item {
+  margin-bottom: 20px;
+  display: flex;
+  column-gap: 30px;
+}
+
+.main-item-link {
+  
+}
+
+.main-image {
+  border-radius: 15px;
+}
+
+.main-info {
+  padding-top: 10px;
+}
+
+.main-title {
+  color: black;
+  font-weight: bold;
+  text-decoration-line: none;
+  font-size: 15px;
+}
+
+.main-inner {
+  color: grey;
+  font-size: 12px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.main-channel-name {
+  color: #545454;
+  text-decoration-line: none;
+
+  span {
+    color: grey;
+    font-size: 12px;
+    margin-right: 5px;
+  }
+}
