@@ -4,7 +4,8 @@ import json
 import aiohttp
 import asyncio
 from aiohttp_socks import ProxyConnector
-
+import logging
+logger = logging.getLogger(__name__)
 
 async def get_YT_search_html(search_query):
     headers = {
@@ -20,17 +21,19 @@ async def get_YT_search_html(search_query):
     }
 
     proxy_url_rotate = 'http://83.149.70.159:13012'
-    # Создание соединителя для прокси
-    connector = ProxyConnector.from_url(proxy_url_rotate)
+
 
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
 
     for _ in range(MAX_RETRIES):
         try:
+            # Создание соединителя для прокси
+            connector = ProxyConnector.from_url(proxy_url_rotate)
             # Создание асинхронной сессии
             async with aiohttp.ClientSession(connector=connector) as session:
                 async with session.get('https://www.youtube.com/results', params=params, headers=headers) as response:
+                    logger.info(f"Response status code get_YT_search_html: {response.status}")
                     print(response.url)
                     return await response.text()  # Возвращаем результат после успешного выполнения запроса
 
@@ -108,12 +111,6 @@ def make_json(json_data, quantity):
             videos_data.append(video_data)  # Добавляем словарь с данными о видео в список
 
     return videos_data
-# async def general_YT(search_query, quantity):
-#     content = await get_YT_search_html(search_query)
-#     json_data = return_json_dict(content)
-#     json_to_front = make_json(json_data, quantity)
-#
-#     return json_to_front
 
 async def general_YT(search_query, quantity):
     retry_count = 0

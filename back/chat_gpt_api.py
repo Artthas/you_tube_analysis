@@ -25,8 +25,10 @@ async def get_keywords(text_array):
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             # {"role": "user", "content": f"Вот мой список заголовков: {text}. Пожалуйста, выделите 10 ключевых слов из этого списка, которые можно использовать для поиска на YouTube."}
+            # {"role": "user",
+            #  "content": f"I will provide you with a list of YouTube video titles. Based on these titles, you need to understand the channel's content and niche and create 3 or 4 keywords to search for the most relevant videos on YouTube and write all the keywords in a single line, separated by a vertical bar (|):\n\n\n\n{text}"}
             {"role": "user",
-             "content": f"I will provide you with a list of YouTube video titles. Based on these titles, you need to understand the channel's content and niche and create 3 or 4 keywords to search for the most relevant videos on YouTube and write all the keywords in a single line, separated by a vertical bar (|):\n\n\n\n{text}"}
+             "content": f"I will provide you with a list of YouTube video titles. Your task is to generate ONLY 3 or 4 keywords that best represent the overall theme of these titles. It's crucial to limit the keywords to only 3 or 4. Write them in a single line, separated by a vertical bar (|):\n\n\n\n{text}"}
 
         ]
     )

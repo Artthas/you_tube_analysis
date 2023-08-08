@@ -6,6 +6,10 @@ from chat_gpt_api import get_keywords
 from fastapi.exceptions import HTTPException
 from aiohttp_socks import ProxyConnector
 import asyncio
+import logging
+logger = logging.getLogger(__name__)
+
+
 
 async def get_channel_data(channel_name):
     """
@@ -44,6 +48,7 @@ async def get_channel_data(channel_name):
                                        headers=headers) as response:
                     # Получение HTML-ответа
                     html = await response.text()
+                    logger.info(f"Response status code get_channel_data: {response.status}")
 
                     # Проверка статуса ответа
                     if response.status == 404:
@@ -184,19 +189,23 @@ async def find_popular_video_titles(channel_name, token):
 
     video_titles = []
     proxy_url_rotate = 'http://83.149.70.159:13012'
-    # Создание соединителя для прокси
-    connector = ProxyConnector.from_url(proxy_url_rotate)
+
 
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
 
     for _ in range(MAX_RETRIES):
         try:
+            # Создание соединителя для прокси
+            connector = ProxyConnector.from_url(proxy_url_rotate)
             # Создание асинхронной сессии
             async with aiohttp.ClientSession(connector=connector) as session:
                 async with session.post('https://www.youtube.com/youtubei/v1/browse', headers=headers,
                                         json=json_data) as response:
+
                     data = await response.json()
+                    logger.info(f"Response status code find_popular_video_titles: {response.status}")
+
                     items = data['onResponseReceivedActions'][1]['reloadContinuationItemsCommand']['continuationItems']
                     for item in items[:5]:
                         title = item['richItemRenderer']['content']['videoRenderer']['title']['runs'][0]['text']
@@ -208,6 +217,7 @@ async def find_popular_video_titles(channel_name, token):
             if _ < MAX_RETRIES - 1:  # Если это не последняя попытка
                 await asyncio.sleep(DELAY_BETWEEN_RETRIES)  # Добавляем задержку перед следующей попыткой
             else:
+
                 raise  # Если это была последняя попытка, выбрасываем исключение
 
 
@@ -232,7 +242,8 @@ async def general_func(channel_name):
         try:
             data = await get_channel_data(channel_name)
             keys = find_keywords_in_page(data)
-            if len(keys) > 5:
+            print(f'keys in meta {keys}')
+            if 3 <= len(keys) <= 6:
                 keywords_string = " | ".join(keys)
                 return keywords_string
             else:
