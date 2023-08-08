@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 import aiohttp
 import asyncio
+from aiohttp_socks import ProxyConnector
 
 
 async def get_YT_search_html(search_query):
@@ -18,12 +19,28 @@ async def get_YT_search_html(search_query):
         'sp': 'CAMSAggF',
     }
 
-    proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://www.youtube.com/results', params=params, headers=headers,
-                               proxy=proxy_url) as response:
-            print(response.url)
-            return await response.text()
+    proxy_url_rotate = 'http://83.149.70.159:13012'
+    # Создание соединителя для прокси
+    connector = ProxyConnector.from_url(proxy_url_rotate)
+
+    MAX_RETRIES = 20
+    DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
+
+    for _ in range(MAX_RETRIES):
+        try:
+            # Создание асинхронной сессии
+            async with aiohttp.ClientSession(connector=connector) as session:
+                async with session.get('https://www.youtube.com/results', params=params, headers=headers) as response:
+                    print(response.url)
+                    return await response.text()  # Возвращаем результат после успешного выполнения запроса
+
+        except Exception as e:
+            print(f"An error occurred in get_YT_search_html: {e}")
+            if _ < MAX_RETRIES - 1:  # Если это не последняя попытка
+                await asyncio.sleep(DELAY_BETWEEN_RETRIES)  # Добавляем задержку перед следующей попыткой
+            else:
+                raise  # Если это была последняя попытка, выбрасываем исключение
+
 
 
 def return_json_dict(content):
@@ -81,33 +98,34 @@ def get_nested(data, path):
     return data
 
 
-# def make_json(json_data, quantity):
-#     videos_data = []
-#     for i in range(quantity):
-#         video_data = extract_video_data(json_data, i)
-#         videos_data.append(video_data)  # Добавляем словарь с данными о видео в список
-#
-#     # Преобразуем список словарей в строку JSON с отступами в 4 пробела
-#     json_str = json.dumps(videos_data, indent=4, ensure_ascii=False)
-#     json_write(json_str)
-#     # Выводим строку JSON в консоль
-#     # print(json_str)
-#     return json_str
+
 def make_json(json_data, quantity):
     videos_data = []
     for i in range(quantity):
         video_data = extract_video_data(json_data, i)
-        videos_data.append(video_data)  # Добавляем словарь с данными о видео в список
+        # Если хотя бы одно значения в словаре равны None, пропускаем его
+        if not any(value is None for value in video_data.values()):
+            videos_data.append(video_data)  # Добавляем словарь с данными о видео в список
 
-    # Возвращаем список словарей
     return videos_data
+# async def general_YT(search_query, quantity):
+#     content = await get_YT_search_html(search_query)
+#     json_data = return_json_dict(content)
+#     json_to_front = make_json(json_data, quantity)
+#
+#     return json_to_front
 
 async def general_YT(search_query, quantity):
-    content = await get_YT_search_html(search_query)
-    json_data = return_json_dict(content)
-    json_to_front = make_json(json_data, quantity)
-
-    return json_to_front
+    retry_count = 0
+    while retry_count < 20:  # Повторяем до 20 раз
+        try:
+            content = await get_YT_search_html(search_query)
+            json_data = return_json_dict(content)
+            json_to_front = make_json(json_data, quantity)
+            return json_to_front
+        except aiohttp.ClientProxyConnectionError:
+            retry_count += 1
+            await asyncio.sleep(5)  # Задержка 5 секунд перед следующей попыткой
 
 
 def json_write(data):

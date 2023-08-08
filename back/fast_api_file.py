@@ -47,14 +47,16 @@ async def get_keys(channel_name: str):
         final_json = await general_YT(search_query=keys, quantity=10)
 
         # Вывод полученных данных в консоль (можно убрать, если не требуется)
-        print(final_json)
+        # print(final_json)
 
         # Возврат данных в формате JSON
         return {"final_json": final_json}
+    except HTTPException as e:
+        error_message = str(e.detail) if hasattr(e, 'detail') else str(e)
+        logger.error(f"Error occured get_keys: {error_message}")
+        return {"error get_keys": error_message}
 
     except Exception as e:
-        # Логирование ошибки
-        logger.error(f"Error occurred: {e}")
-
-        # Возврат ошибки в формате JSON
-        return {"error": str(e)}
+        error_message = str(e)
+        logger.error(f"Error occurred get_keys: {error_message}")
+        return {"error": error_message}
