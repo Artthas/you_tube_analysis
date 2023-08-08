@@ -1,5 +1,6 @@
 aiofile==3.8.7
 aiohttp==3.8.5
+aiohttp-socks==0.8.0
 aiohttpx==0.0.9
 aiosignal==1.3.1
 annotated-types==0.5.0
@@ -16,7 +17,7 @@ charset-normalizer==3.2.0
 click==8.1.6
 dill==0.3.7
 exceptiongroup==1.1.2
-fastapi[all]==0.101.0
+fastapi==0.101.0
 file-io==0.4.6
 frozendict==2.3.8
 frozenlist==1.4.0
@@ -33,6 +34,7 @@ openai==0.27.8
 pydantic==2.1.1
 pydantic_core==2.4.0
 python-dotenv==1.0.0
+python-socks==2.3.0
 regex==2023.6.3
 requests==2.31.0
 sniffio==1.3.0
