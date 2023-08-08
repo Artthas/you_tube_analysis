@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState, useRef, FormEvent, ChangeEvent } from 'react';
+import React, { useState, useRef, FormEvent, ChangeEvent, useContext } from 'react';
+import { GlobalContext } from '@/context';
 import styles from '../styles/components/search-bar.module.scss';
 
 export default function SearchBar() {
+
+  const { dispatch } = useContext(GlobalContext);
 
   const [youTubeChannelName, setYouTubeChannelName] = useState('');
 
@@ -21,8 +24,8 @@ export default function SearchBar() {
       if (!response.ok) {
         throw new Error('Ошибка сети');
       }
-      const data = await response.json();
-      console.log(data);
+      const { final_json } = await response.json();
+      dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
     } catch (error) {
       console.error("Произошла ошибка при получении данных:", error);
       return null;
