@@ -13,8 +13,9 @@ services:
     volumes:
       - ./front:/app
       - /app/.next
+      - /app/node_modules
     ports:
-      - "3000:3000"
+      - "3020:3020"
     command: ${FRONT_RUN_COMMAND}
 
   back:
@@ -28,5 +29,5 @@ services:
     volumes:
       - ./back:/app
     ports:
-      - "3001:3001"
+      - "3021:3021"
     command: ${BACK_RUN_COMMAND}
