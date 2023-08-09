@@ -1,6 +1,7 @@
 .main {
-  display: grid;
   height: 100%;
-  grid-template: 1fr/100%;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }

@@ -2,7 +2,9 @@
 
 import React, { useState, useRef, FormEvent, ChangeEvent, useContext } from 'react';
 import { GlobalContext } from '@/context';
+import * as mockData from '../mock-data.json';
 import styles from '../styles/components/search-bar.module.scss';
+import { simulateReqServer } from '@/utils';
 
 export default function SearchBar() {
 
@@ -19,17 +21,22 @@ export default function SearchBar() {
   const handleFormSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youTubeChannelName}`);
-      if (!response.ok) {
-        throw new Error('Ошибка сети');
-      }
-      const { final_json } = await response.json();
-      dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
-    } catch (error) {
-      console.error("Произошла ошибка при получении данных:", error);
-      return null;
-    }
+    simulateReqServer(dispatch, mockData);
+
+    // try {
+    //   const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youTubeChannelName}`);
+    //   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
+    //   if (!response.ok) {
+    //     dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+    //     throw new Error('Ошибка сети');
+    //   }
+    //   const { final_json } = await response.json();
+    //   dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
+    // } catch (error) {
+    //   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+    //   console.error("Произошла ошибка при получении данных:", error);
+    //   return null;
+    // }
   }
 
   return (
