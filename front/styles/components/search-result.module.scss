@@ -12,10 +12,6 @@
   column-gap: 30px;
 }
 
-.main-item-link {
-  
-}
-
 .main-image {
   border-radius: 15px;
 }
@@ -47,4 +43,11 @@
     font-size: 12px;
     margin-right: 5px;
   }
+}
+
+.error-message {
+  color: #EC7063;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 20px;
 }

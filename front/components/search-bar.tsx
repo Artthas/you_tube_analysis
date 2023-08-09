@@ -29,13 +29,19 @@ export default function SearchBar() {
       console.log(response);
       if (!response.ok) {
         dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+        dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
         throw new Error('Ошибка сети');
       }
       const { final_json } = await response.json();
-      console.log(final_json);
+      
+      if (final_json === undefined) {
+        dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
+      }
+
       dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
     } catch (error) {
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+      dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
       console.error("Произошла ошибка при получении данных:", error);
       return null;
     } finally {

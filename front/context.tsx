@@ -22,6 +22,7 @@ type ContextProps = {
 type ContextState = {
   searchResult: VideoInfo[];
   isResultLoading: boolean;
+  isResultLoadingError: boolean;
 };
 
 type ContextAction = {
@@ -32,6 +33,7 @@ type ContextAction = {
 const initialState: ContextState = {
   searchResult: [],
   isResultLoading: false,
+  isResultLoadingError: false,
 };
 
 const reducer = (state: ContextState, action: ContextAction) => {
@@ -40,6 +42,8 @@ const reducer = (state: ContextState, action: ContextAction) => {
       return { ...state, searchResult: action.payload };
     case "SET_IS_RESULT_LOADING":
       return { ...state, isResultLoading: action.payload };
+    case "SET_IS_RESULT_LOADING_ERROR":
+      return { ...state, isResultLoadingError: action.payload };
     default:
       return state;
   }
