@@ -21,22 +21,22 @@ export default function SearchBar() {
   const handleFormSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    simulateReqServer(dispatch, mockData);
+    // simulateReqServer(dispatch, mockData);
 
-    // try {
-    //   const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youTubeChannelName}`);
-    //   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
-    //   if (!response.ok) {
-    //     dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
-    //     throw new Error('Ошибка сети');
-    //   }
-    //   const { final_json } = await response.json();
-    //   dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
-    // } catch (error) {
-    //   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
-    //   console.error("Произошла ошибка при получении данных:", error);
-    //   return null;
-    // }
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youTubeChannelName}`);
+      dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
+      if (!response.ok) {
+        dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+        throw new Error('Ошибка сети');
+      }
+      const { final_json } = await response.json();
+      dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
+    } catch (error) {
+      dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+      console.error("Произошла ошибка при получении данных:", error);
+      return null;
+    }
   }
 
   return (
