@@ -32,6 +32,7 @@ export default function SearchBar() {
         throw new Error('Ошибка сети');
       }
       const { final_json } = await response.json();
+      console.log(final_json);
       dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
     } catch (error) {
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
