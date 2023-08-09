@@ -19,7 +19,7 @@ export default function SearchResult() {
       ) : (
         <ul className={styles['main']}>
           {searchResult.map((item) =>
-            <li className={styles['main-item']} key={item?.title_text}>
+            <li className={styles['main-item']} key={item?.video_url}>
               <Link className={styles['main-item-link']} href={item?.video_url}>
                 <Image
                   className={styles['main-image']}
