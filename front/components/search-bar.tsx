@@ -24,8 +24,9 @@ export default function SearchBar() {
     // simulateReqServer(dispatch, mockData);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youTubeChannelName}`);
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youTubeChannelName}`);
+      console.log(response);
       if (!response.ok) {
         dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
         throw new Error('Ошибка сети');
@@ -36,6 +37,8 @@ export default function SearchBar() {
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
       console.error("Произошла ошибка при получении данных:", error);
       return null;
+    } finally {
+      dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
     }
   }
 
