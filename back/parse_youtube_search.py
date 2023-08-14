@@ -17,11 +17,12 @@ async def get_YT_search_html(search_query):
 
     params = {
         'search_query': search_query,
-        'sp': 'CAMSAggF',
+        # 'sp': 'CAMSAggF', # max views
+        'sp': 'EgIIBQ%3D%3D' # relevant
     }
 
     proxy_url_rotate = 'http://83.149.70.159:13012'
-
+    proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
 
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
@@ -29,7 +30,7 @@ async def get_YT_search_html(search_query):
     for _ in range(MAX_RETRIES):
         try:
             # Создание соединителя для прокси
-            connector = ProxyConnector.from_url(proxy_url_rotate)
+            connector = ProxyConnector.from_url(proxy_url)
             # Создание асинхронной сессии
             async with aiohttp.ClientSession(connector=connector) as session:
                 async with session.get('https://www.youtube.com/results', params=params, headers=headers) as response:
