@@ -61,9 +61,13 @@ def is_short_video(video_length):
 
 def find_new_titles(video_list, channel_name):
     titles = []
+    competitors = []
     for item in video_list:
         channel_name_in_list = item['channel_url'].split('@')[-1]
         if not is_short_video(item['video_length']) and channel_name != channel_name_in_list:
             titles.append(item['title_text'])
+            if not item['channel_url'] in competitors:
+                competitors.append(item['channel_url'])
 
-    return titles
+
+    return [titles, competitors]

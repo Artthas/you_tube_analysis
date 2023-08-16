@@ -20,18 +20,21 @@ def format_keywords(content):
 
 async def get_keywords(text_array):
     text = ', '.join(text_array)
-    print(text)
+    # print(text)
     # Шаг 1: Получаем описание канала на основе заголовков видео
     description_completion = await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system",
              "content": "You are an AI trained to analyze and understand the main theme of a YouTube channel based on its video titles."},
-            {"role": "user",
-             "content": f"Given the following list of YouTube video titles, can you provide a brief description of the channel's theme and content based on these titles?\n\n{text}"}
+            {
+                "role": "user",
+                "content": f"Given the following list of YouTube video titles, can you provide a detailed and precise description of the channel's main theme, its target audience, and the type of content it primarily focuses on?\n\nFor example, if the titles were mostly about cooking, the description should mention that the channel is a cooking channel, targeting food enthusiasts, and primarily focuses on recipes, cooking techniques, etc.\n\nVideo Titles:\n\n{text}"
+            }
         ]
     )
     description = description_completion.choices[0].message['content']
+
     # Шаг 2: Генерируем ключевые слова на основе полученного описания
     keywords_completion = await openai.ChatCompletion.acreate(
         model="gpt-3.5-turbo",
@@ -42,8 +45,7 @@ async def get_keywords(text_array):
         ]
     )
     keywords = keywords_completion.choices[0].message['content']
-    print(keywords)
-    return {"formatted_keywords": keywords, "first_titles": text}
+    return {"formatted_keywords": keywords, "first_titles": text, 'description': description}
 
 
 # async def get_keywords(text_array):
@@ -70,29 +72,63 @@ async def get_keywords(text_array):
 #     return {"formatted_keywords": formatted_keywords, "first_titles": text}
 
 
-async def create_ideas(titles):
-    completion = await openai.ChatCompletion.acreate(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a creative expert skilled in generating video topic ideas."},
-            {"role": "user",
-             "content": f"Based on the following list of YouTube video titles: {titles}. Suggest other similar topics so we can make other trending videos. We need titles to be suggested directly as well as short description for new videos."
-            }
-        ]
-    )
-    content = completion.choices[0].message['content']
+async def create_ideas(general_ch, comp_ch_list=None):
+    MAX_RETRIES = 5
 
-    # Разделяем ответ на отдельные идеи по двойным переносам строк
-    raw_ideas = [idea.strip() for idea in content.split('\n\n') if idea.strip()]
+    relevant_competitors = []
 
-    # Преобразуем каждую идею в словарь с названием и описанием
-    ideas = []
-    for idea in raw_ideas:
-        if " - " in idea:
-            title, description = idea.split(" - ", 1)
-            ideas.append({
-                "title": title.strip(),
-                "description": description.strip()
-            })
-    print(json.dumps(ideas, indent=4))
-    return ideas
+    # Проверка релевантности видео конкурентов
+    for comp_ch in comp_ch_list:
+        main_channel_titles = list(general_ch.values())[0]
+        competitor_channel_name = list(comp_ch.keys())[0]
+        competitor_titles = comp_ch[competitor_channel_name]
+
+        relevance_prompt = f"Are the video titles from the main channel {main_channel_titles} relevant to the competitor's titles {competitor_titles} in terms of content and theme?"
+
+        relevance_response = await openai.ChatCompletion.acreate(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert in analyzing content relevance."},
+                {"role": "user", "content": relevance_prompt}
+            ]
+        )
+        relevance_answer = relevance_response.choices[0].message['content'].lower()
+
+        if "yes" in relevance_answer or "relevant" in relevance_answer:
+            relevant_competitors.extend(competitor_titles)
+
+    if not relevant_competitors:
+        return {"error": "The competitor's videos are not relevant enough."}
+
+    # Генерация идей на основе стилистики и релевантности
+    style_prompt = f"Generate video ideas based on the style and content of the main channel titles: {list(general_ch.values())[0]}. Use the relevant competitor's titles {relevant_competitors} as inspiration. Provide multiple title options and a short description for each idea."
+    for attempt in range(MAX_RETRIES):
+        ideas_response = await openai.ChatCompletion.acreate(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a creative expert skilled in generating video topic ideas."},
+                {"role": "user", "content": style_prompt}
+            ]
+        )
+        content = ideas_response.choices[0].message['content']
+
+        # Разделяем ответ на отдельные идеи
+        raw_ideas = [idea.strip() for idea in content.split('\n\n') if idea.strip()]
+
+        # Преобразуем каждую идею в словарь
+        structured_ideas = {}
+        for idx, idea in enumerate(raw_ideas, 1):
+            if " - " in idea:
+                titles, description = idea.split(" - ", 1)
+                structured_ideas[f"Idea {idx}"] = {
+                    "titles": titles.split(", "),
+                    "description": description.strip()
+                }
+
+        if structured_ideas:
+            return structured_ideas
+
+    return {"error": "Failed to generate ideas after multiple attempts."}
+
+
+
