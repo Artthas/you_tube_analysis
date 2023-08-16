@@ -47,19 +47,23 @@ async def get_keys(channel_name: str):
 
     for _ in range(MAX_RETRIES):
         try:
+            json_to_front = {}
+            json_to_front['all_this_shit_is_beacuse_of_this_youtube_channel'] = f"https://www.youtube.com/@{channel_name}/videos"
             # Получение ключевых слов для поиска видео по имени канала
             info_from_gpt = await general_func(channel_name)
             dict_from_gpt = info_from_gpt[0]
 
             # он в формате словари с данными о видео где есть title, url, thumbnail и все они находятся в списке
             dict_to_front = info_from_gpt[1] # TODO вернуть на фронт для отображения на странице, типа из чего генрим идеи
-            # print(dict_to_front)
+            json_to_front['videos_from_first_channel'] = dict_to_front
+
             keys = dict_from_gpt["formatted_keywords"]
             old_titles = dict_from_gpt["first_titles"]
             description = dict_from_gpt['description']
-            print('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHaaaaaaaaaaaaaaaaaa')
+            print('>>>>>>>>>>>> I have already old titles and description <<<<<<<<<<<<<<<')
             # print(description)
             general_channel = {channel_name: old_titles}
+            # print(general_channel)
             # Логирование сгенерированных ключевых слов
             logger.info(f"Generated keys: {keys}")
 
@@ -107,18 +111,21 @@ async def get_keys(channel_name: str):
             # print(general_channel)
             # TODO вызываю анализ каналов конкурентов
             print('***************************************************')
-            print(list_with_comptetitors_url_to_front) # TODO тоже на фронт. Типа с каких каналов идеи
+            json_to_front['competitors_channels'] = list_with_comptetitors_url_to_front
+            # print(list_with_comptetitors_url_to_front) # TODO тоже на фронт. Типа с каких каналов идеи
             # print(keys)
             # print(old_titles)
             # print(new_titles)
 
 
             ideas = await create_ideas(general_ch=general_channel, comp_ch_list=competitors)
+
+            json_to_front['generated_ideas'] = ideas
             print('***************************************************')
             print(json.dumps(ideas, indent=4))
 
             # Возврат данных в формате JSON
-            return {"final_json": first_json}
+            return {"final_json": json_to_front}
 
         except HTTPException as e:
             error_message = str(e.detail) if hasattr(e, 'detail') else str(e)

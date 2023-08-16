@@ -1,4 +1,6 @@
 import os
+import time
+
 import openai
 from aiohttp import ClientSession
 import re
@@ -74,6 +76,11 @@ async def get_keywords(text_array):
 
 async def create_ideas(general_ch, comp_ch_list=None):
     MAX_RETRIES = 5
+    print('>>>>>>>>>>>>>>>>>>> general channel <<<<<<<<<<<<<<<<<<<<<<<<')
+    print(general_ch)
+
+    print('>>>>>>>>>>>>>>>>>comp channel <<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+    print(comp_ch_list)
 
     relevant_competitors = []
 
@@ -81,9 +88,9 @@ async def create_ideas(general_ch, comp_ch_list=None):
     for comp_ch in comp_ch_list:
         main_channel_titles = list(general_ch.values())[0]
         competitor_channel_name = list(comp_ch.keys())[0]
-        competitor_titles = comp_ch[competitor_channel_name]
+        competitor_titles = ', '.join(comp_ch[competitor_channel_name])
 
-        relevance_prompt = f"Are the video titles from the main channel {main_channel_titles} relevant to the competitor's titles {competitor_titles} in terms of content and theme?"
+        relevance_prompt = f"Given the video titles from the main channel {main_channel_titles} and the competitor's titles {competitor_titles}, are they relevant in terms of content and theme? Please answer with a simple 'YES' or 'NO'."
 
         relevance_response = await openai.ChatCompletion.acreate(
             model="gpt-3.5-turbo",
@@ -93,15 +100,38 @@ async def create_ideas(general_ch, comp_ch_list=None):
             ]
         )
         relevance_answer = relevance_response.choices[0].message['content'].lower()
+        print('relevant answer')
+        print(relevance_answer)
+        print(main_channel_titles)
+        print('********')
+        print(competitor_titles)
+        time.sleep(2)
 
-        if "yes" in relevance_answer or "relevant" in relevance_answer:
-            relevant_competitors.extend(competitor_titles)
+        negative_responses = ["no", "not relevant", "not similar", "not alike", "dissimilar", "unrelated"]
+        if any(word in relevance_answer for word in negative_responses):
+            continue
+
+        relevant_competitors.extend(comp_ch[competitor_channel_name])
 
     if not relevant_competitors:
-        return {"error": "The competitor's videos are not relevant enough."}
+        print("""The competitor's videos are not relevant enough.""")
+        # return {"error": "The competitor's videos are not relevant enough."}
 
     # Генерация идей на основе стилистики и релевантности
-    style_prompt = f"Generate video ideas based on the style and content of the main channel titles: {list(general_ch.values())[0]}. Use the relevant competitor's titles {relevant_competitors} as inspiration. Provide multiple title options and a short description for each idea."
+    style_prompt = f"""
+    Generate video ideas that strictly follow the style and content of the main channel titles: {main_channel_titles}. 
+    Use the relevant competitor's titles {', '.join(relevant_competitors)} as inspiration. 
+    For each idea, structure your response as follows:
+
+    IDEA:
+    Title Option 1: [Title here]
+    Title Option 2: [Title here]
+    Title Option 3: [Title here]
+    Description: [Short description here]
+
+    Separate each idea with '---'.
+    """
+
     for attempt in range(MAX_RETRIES):
         ideas_response = await openai.ChatCompletion.acreate(
             model="gpt-3.5-turbo",
@@ -111,24 +141,27 @@ async def create_ideas(general_ch, comp_ch_list=None):
             ]
         )
         content = ideas_response.choices[0].message['content']
-
+        print(f">>>>>>>>>>>>>>>>>>> RAW CONTENT attempt {attempt} <<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+        print(content)
         # Разделяем ответ на отдельные идеи
-        raw_ideas = [idea.strip() for idea in content.split('\n\n') if idea.strip()]
+        raw_ideas = [idea.strip() for idea in content.split('---') if idea.strip()]
 
-        # Преобразуем каждую идею в словарь
         structured_ideas = {}
         for idx, idea in enumerate(raw_ideas, 1):
-            if " - " in idea:
-                titles, description = idea.split(" - ", 1)
-                structured_ideas[f"Idea {idx}"] = {
-                    "titles": titles.split(", "),
-                    "description": description.strip()
-                }
+            lines = idea.split("\n")
+            titles = [lines[i].split(": ")[1].strip() for i in range(1, 4)]
+            description = lines[4].split(": ")[1].strip()
+
+            structured_ideas[f"Idea {idx}"] = {
+                "titles": titles,
+                "description": description
+            }
 
         if structured_ideas:
             return structured_ideas
 
     return {"error": "Failed to generate ideas after multiple attempts."}
+
 
 
 
