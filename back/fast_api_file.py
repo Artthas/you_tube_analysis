@@ -42,6 +42,10 @@ async def get_keys(channel_name: str):
     :return: JSON-объект с данными о видео или ошибкой, если что-то пошло не так.
     """
 
+    # МЕНЯТЬ ПРОКСИ, ЕСЛИ ИСПОЛЬЗУЮ НА ЛОКАЛКЕ
+    proxy_url_local = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
+    proxy_url_rotate = 'http://83.149.70.159:13012'
+    proxy_url = proxy_url_rotate
     # Логирование полученного имени канала
     logger.info(f"Received channel_name: {channel_name}")
 
@@ -50,20 +54,18 @@ async def get_keys(channel_name: str):
             json_to_front = {}
             json_to_front['all_this_shit_is_beacuse_of_this_youtube_channel'] = f"https://www.youtube.com/@{channel_name}/videos"
             # Получение ключевых слов для поиска видео по имени канала
-            info_from_gpt = await general_func(channel_name)
+            info_from_gpt = await general_func(channel_name, proxy_url=proxy_url)
             dict_from_gpt = info_from_gpt[0]
 
             # он в формате словари с данными о видео где есть title, url, thumbnail и все они находятся в списке
-            dict_to_front = info_from_gpt[1] # TODO вернуть на фронт для отображения на странице, типа из чего генрим идеи
+            dict_to_front = info_from_gpt[1] #
             json_to_front['videos_from_first_channel'] = dict_to_front
 
             keys = dict_from_gpt["formatted_keywords"]
             old_titles = dict_from_gpt["first_titles"]
             description = dict_from_gpt['description']
             print('>>>>>>>>>>>> I have already old titles and description <<<<<<<<<<<<<<<')
-            # print(description)
             general_channel = {channel_name: old_titles}
-            # print(general_channel)
             # Логирование сгенерированных ключевых слов
             logger.info(f"Generated keys: {keys}")
 
@@ -72,7 +74,7 @@ async def get_keys(channel_name: str):
             здесь я получаю словарь где будет инфа о видео, о первых 20ти из поиска ютуба
             так же здесь я должен брать ссылки на каналы и парсить там видео
             """
-            first_json = await general_YT(search_query=keys, quantity=20)
+            first_json = await general_YT(search_query=keys, quantity=20, proxy_url=proxy_url)
             # Если final_json пуст, то вызываем исключение, чтобы повторить попытку
             if not first_json:
                 await asyncio.sleep(3)  # Задержка перед повторной попыткой
@@ -92,9 +94,7 @@ async def get_keys(channel_name: str):
             else:
                 selected_competitors = []
 
-            competitors = await func_for_titles_competitors(selected_competitors)
-            # list_with_comptetitors_url_to_front = [f"https://www.youtube.com/@{name}/videos" for name in
-            #                                        competitors.keys() if len(competitors) >= 1]
+            competitors = await func_for_titles_competitors(selected_competitors, proxy_url=proxy_url)
             list_with_comptetitors_url_to_front = []
 
             if len(competitors) > 1:
@@ -102,21 +102,8 @@ async def get_keys(channel_name: str):
                     for channel_name in channel_dict.keys():
                         list_with_comptetitors_url_to_front.append(f"https://www.youtube.com/@{channel_name}/videos")
 
-
-            # try:
-            #     print(json.dumps(competitors, indent=4))
-            # except:
-            #     print(competitors)
-            # print(selected_competitors)
-            # print(general_channel)
-            # TODO вызываю анализ каналов конкурентов
             print('***************************************************')
             json_to_front['competitors_channels'] = list_with_comptetitors_url_to_front
-            # print(list_with_comptetitors_url_to_front) # TODO тоже на фронт. Типа с каких каналов идеи
-            # print(keys)
-            # print(old_titles)
-            # print(new_titles)
-
 
             ideas = await create_ideas(general_ch=general_channel, comp_ch_list=competitors)
 
@@ -125,6 +112,8 @@ async def get_keys(channel_name: str):
             print(json.dumps(ideas, indent=4))
 
             # Возврат данных в формате JSON
+            logger.info(f"Received channel_name: {channel_name}")
+            logger.info(f"Sending URL to frontend: {json_to_front['all_this_shit_is_beacuse_of_this_youtube_channel']}")
             return {"final_json": json_to_front}
 
         except HTTPException as e:

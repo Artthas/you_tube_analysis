@@ -1,6 +1,6 @@
 import os
 import time
-
+import logging
 import openai
 from aiohttp import ClientSession
 import re
@@ -9,6 +9,11 @@ import json
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 # openai.api_key = key2
+# Инициализация логгера
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+
 
 def format_keywords(content):
     # Удаляем лишние пробелы и разбиваем строку по запятым или вертикальным чертам
@@ -50,40 +55,16 @@ async def get_keywords(text_array):
     return {"formatted_keywords": keywords, "first_titles": text, 'description': description}
 
 
-# async def get_keywords(text_array):
-#     text = ', '.join(text_array)
-#     print(text)
-#     completion = await openai.ChatCompletion.acreate(
-#         model="gpt-3.5-turbo",
-#         messages=[
-#             {"role": "system", "content": "You are an AI trained to analyze and extract keywords from a list of YouTube video titles. The goal is to understand the main theme of a YouTube channel based on its video titles and provide relevant keywords."},
-#             {"role": "user",
-#              # "content": f"Based on the following list of YouTube video titles, please provide ONLY 6 or 8 keywords that best represent the overall theme of these titles. Return the keywords separated by a vertical bar (|) without any additional details or explanations. I need just the keywords in a single line:\n\n{text}"
-#              "content": f"Given the following list of YouTube video titles, understand the essence and niche of the channel. Based on this understanding, provide 6 to 8 keywords that would be relevant for searching similar content on YouTube. Return only the keywords, separated by a vertical bar (|), without any additional context or listing the titles:\n\n{text}"
-#
-#              }
-#
-#         ]
-#     )
-#     content = completion.choices[0].message['content']
-#
-#     # Форматируем ключевые слова, чтобы они всегда были разделены вертикальной чертой
-#     formatted_keywords = content
-#     print('CONTENT===CONTENT===CONTENT===CONTENT===CONTENT===CONTENT===CONTENT===CONTENT===CONTENT===')
-#     print(formatted_keywords)
-#     return {"formatted_keywords": formatted_keywords, "first_titles": text}
-
 
 async def create_ideas(general_ch, comp_ch_list=None):
     MAX_RETRIES = 5
-    print('>>>>>>>>>>>>>>>>>>> general channel <<<<<<<<<<<<<<<<<<<<<<<<')
-    print(general_ch)
-
-    print('>>>>>>>>>>>>>>>>>comp channel <<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-    print(comp_ch_list)
-
+    logger.debug('Starting the create_ideas function.')
+    # print('>>>>>>>>>>>>>>>>>>> general channel <<<<<<<<<<<<<<<<<<<<<<<<')
+    # print(general_ch)
+    # print('>>>>>>>>>>>>>>>>> comp channel <<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+    # print(comp_ch_list)
+    main_channel_titles = list(general_ch.values())[0]
     relevant_competitors = []
-
     # Проверка релевантности видео конкурентов
     for comp_ch in comp_ch_list:
         main_channel_titles = list(general_ch.values())[0]
@@ -100,29 +81,40 @@ async def create_ideas(general_ch, comp_ch_list=None):
             ]
         )
         relevance_answer = relevance_response.choices[0].message['content'].lower()
-        print('relevant answer')
-        print(relevance_answer)
-        print(main_channel_titles)
-        print('********')
-        print(competitor_titles)
+        # print('relevant answer')
+        # print(relevance_answer)
+        # print(main_channel_titles)
+        # print('********')
+        # print(competitor_titles)
         time.sleep(2)
 
         negative_responses = ["no", "not relevant", "not similar", "not alike", "dissimilar", "unrelated"]
         if any(word in relevance_answer for word in negative_responses):
+            logger.info(f"Titles from {competitor_channel_name} are not relevant.")
+
             continue
 
         relevant_competitors.extend(comp_ch[competitor_channel_name])
 
     if not relevant_competitors:
-        print("""The competitor's videos are not relevant enough.""")
-        # return {"error": "The competitor's videos are not relevant enough."}
+        logger.warning("The competitor's videos are not relevant enough.")
 
-    # Генерация идей на основе стилистики и релевантности
     style_prompt = f"""
-    Generate video ideas that strictly follow the style and content of the main channel titles: {main_channel_titles}. 
-    Use the relevant competitor's titles {', '.join(relevant_competitors)} as inspiration. 
-    For each idea, structure your response as follows:
+    Algorithm for Generating Video Ideas:
 
+    1. Analyze the main channel titles: {main_channel_titles}.
+    2. Understand the style, mood, content themes, and tone of voice of the main channel.
+    3. If the main channel has a youthful vibe, maintain a similar energetic and modern tone. If it's more serious, keep the tone mature and authoritative.
+    4. If available, consider the relevant competitor's titles {', '.join(relevant_competitors)} for inspiration, but DO NOT replicate them.
+    5. Generate entirely new video ideas that:
+       - Align closely with the main channel's essence.
+       - Feel like a natural extension of the main channel's content.
+       - Have a similar mood, theme, and tone of voice as the main channel titles.
+    6. For each idea, provide:
+       - Three title options.
+       - A short description.
+
+    Structure the response as:
     IDEA:
     Title Option 1: [Title here]
     Title Option 2: [Title here]
@@ -142,7 +134,7 @@ async def create_ideas(general_ch, comp_ch_list=None):
         )
         content = ideas_response.choices[0].message['content']
         print(f">>>>>>>>>>>>>>>>>>> RAW CONTENT attempt {attempt} <<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-        print(content)
+        # print(content)
         # Разделяем ответ на отдельные идеи
         raw_ideas = [idea.strip() for idea in content.split('---') if idea.strip()]
 
@@ -158,8 +150,11 @@ async def create_ideas(general_ch, comp_ch_list=None):
             }
 
         if structured_ideas:
+            logger.info(f"Successfully generated ideas on attempt {attempt}.")
+
             return structured_ideas
 
+    logger.error("Failed to generate ideas after multiple attempts.")
     return {"error": "Failed to generate ideas after multiple attempts."}
 
 

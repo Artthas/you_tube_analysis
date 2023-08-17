@@ -7,7 +7,7 @@ from aiohttp_socks import ProxyConnector
 import logging
 logger = logging.getLogger(__name__)
 
-async def get_YT_search_html(search_query):
+async def get_YT_search_html(search_query, proxy_url):
     headers = {
         'authority': 'www.youtube.com',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -21,8 +21,8 @@ async def get_YT_search_html(search_query):
         'sp': 'EgIIBQ%3D%3D' # relevant
     }
 
-    proxy_url_rotate = 'http://83.149.70.159:13012'
-    proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
+    # proxy_url_rotate = 'http://83.149.70.159:13012'
+    # proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
 
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
@@ -113,11 +113,11 @@ def make_json(json_data, quantity):
 
     return videos_data
 
-async def general_YT(search_query, quantity):
+async def general_YT(search_query, quantity, proxy_url):
     retry_count = 0
     while retry_count < 20:  # Повторяем до 20 раз
         try:
-            content = await get_YT_search_html(search_query)
+            content = await get_YT_search_html(search_query, proxy_url)
             json_data = return_json_dict(content)
             json_to_front = make_json(json_data, quantity)
             return json_to_front

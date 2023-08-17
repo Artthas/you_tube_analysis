@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-async def get_channel_data(channel_name):
+async def get_channel_data(channel_name, proxy_url):
     """
     Асинхронная функция для получения данных о видео на YouTube по имени канала.
 
@@ -30,8 +30,8 @@ async def get_channel_data(channel_name):
         'Sec-Fetch-User': '?1',
     }
     # Прокси-сервер для запроса
-    proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
-    proxy_url_rotate = 'http://83.149.70.159:13012'
+    # proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
+    # proxy_url_rotate = 'http://83.149.70.159:13012'
     # Создание соединителя для прокси
     connector = ProxyConnector.from_url(proxy_url)
     MAX_RETRIES = 20
@@ -191,7 +191,7 @@ def find_video_titles_url_thumb(data, max_titles=20):
     return videos
 
 
-async def find_popular_video_titles(channel_name, token):
+async def find_popular_video_titles(channel_name, token, proxy_url):
     headers = {
         'authority': 'www.youtube.com',
         'accept': '*/*',
@@ -222,10 +222,8 @@ async def find_popular_video_titles(channel_name, token):
         },
         'continuation': f'{token}',
     }
-    proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
     video_titles = []
     videos = []
-    proxy_url_rotate = 'http://83.149.70.159:13012'
 
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
@@ -271,17 +269,17 @@ async def find_popular_video_titles(channel_name, token):
             else:
 
                 raise  # Если это была последняя попытка, выбрасываем исключение
-async def general_func_concurence(channel_name):
+async def general_func_concurence(channel_name, proxy_url):
     retry_count = 0
     while retry_count < 20:  # Повторяем до 20 раз
         try:
-            data = await get_channel_data(channel_name)
+            data = await get_channel_data(channel_name, proxy_url=proxy_url)
             video_titles_first = find_video_titles(data, max_titles=10)
             tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
             popular_titles = []
             if len(tokens) > 1:
                 token_to_popular = tokens[2]['token']
-                popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular)
+                popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular, proxy_url=proxy_url)
 
 
             # что бы было не слишком много заголовков. И в идеале только популырные
@@ -296,35 +294,14 @@ async def general_func_concurence(channel_name):
             await asyncio.sleep(5)  # Задержка 5 секунд перед следующей попыткой
 
 
-# courtinvestigation
-# concurence_channals = ['AETV', 'CBSNews', 'thv11', 'LawyerYouKnow', 'RoomforDiscussionUva', 'LawAndCrime', 'NBCNews',
-#                        'BanijayCrime', 'CBCNews']
-
-# channel_name = 'AETV'
-# # Получение ключевых слов для поиска видео по имени канала
-# dict_with_titles_competitors = asyncio.run(general_func_concurence(channel_name))
-#
-# print(dict_with_titles_competitors)
+async def process_channel(channel_name, proxy_url):
+    return await general_func_concurence(channel_name, proxy_url)
 
 
-async def process_channel(channel_name):
-    return await general_func_concurence(channel_name)
-
-
-async def func_for_titles_competitors(selected_competitors):
+async def func_for_titles_competitors(selected_competitors, proxy_url):
     if not selected_competitors:
         return []
-    tasks = [process_channel(channel_name) for channel_name in selected_competitors]
+    tasks = [process_channel(channel_name, proxy_url) for channel_name in selected_competitors]
     results = await asyncio.gather(*tasks)
     return results
 
-#
-# selected_competitors = ['AETV', 'CBSNews', 'thv11', 'LawyerYouKnow', 'RoomforDiscussionUva']
-#
-# dict_with_titles_competitors = asyncio.run(func_for_titles_competitors(selected_competitors))
-#
-#
-# try:
-#     print(json.dumps(dict_with_titles_competitors, indent=4))
-# except:
-#     print(dict_with_titles_competitors)
