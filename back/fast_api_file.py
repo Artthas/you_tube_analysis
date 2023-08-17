@@ -45,7 +45,7 @@ async def get_keys(channel_name: str):
     # МЕНЯТЬ ПРОКСИ, ЕСЛИ ИСПОЛЬЗУЮ НА ЛОКАЛКЕ
     proxy_url_local = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
     proxy_url_rotate = 'http://83.149.70.159:13012'
-    proxy_url = proxy_url_rotate
+    proxy_url = proxy_url_local
     # Логирование полученного имени канала
     logger.info(f"Received channel_name: {channel_name}")
 
