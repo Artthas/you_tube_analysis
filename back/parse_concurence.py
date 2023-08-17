@@ -7,8 +7,8 @@ from fastapi.exceptions import HTTPException
 from aiohttp_socks import ProxyConnector
 import asyncio
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 
 async def get_channel_data(channel_name, proxy_url):
@@ -31,15 +31,11 @@ async def get_channel_data(channel_name, proxy_url):
     }
     # Прокси-сервер для запроса
     # proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
-    #
     # proxy_url_rotate = 'http://83.149.70.159:13012'
-
     # Создание соединителя для прокси
     connector = ProxyConnector.from_url(proxy_url)
-
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
-
     for _ in range(MAX_RETRIES):
         try:
             # Создание асинхронной сессии
@@ -50,17 +46,14 @@ async def get_channel_data(channel_name, proxy_url):
                     # Получение HTML-ответа
                     html = await response.text()
                     logger.info(f"Response status code get_channel_data: {response.status}")
-
                     # Проверка статуса ответа
                     if response.status == 404:
                         raise HTTPException(status_code=404, detail="Incorrect channel name")
                     elif response.status != 200:
                         raise HTTPException(status_code=response.status, detail="Failed to get data from YouTube")
-
                     # Парсинг HTML с использованием BeautifulSoup
                     soup = BeautifulSoup(html, 'lxml')
                     scripts = soup.find_all('script')
-
                     # Поиск скрипта, содержащего ytInitialData
                     for script in scripts:
                         if 'ytInitialData' in script.text:
@@ -68,21 +61,16 @@ async def get_channel_data(channel_name, proxy_url):
                             break
                     if json_str is None:
                         raise ValueError("ytInitialData not found in the page")
-
                     json_str = json_str.split('var ytInitialData =')[1]
                     json_str = json_str.rsplit('};', 1)[0] + '}'
                     data = json.loads(json_str)
-
-                    # Запись данных в файл
-                    # with open('new_test.json', 'w') as file:
-                    #     json.dump(data, file, indent=4)
-
                     return data  # Если все прошло успешно, выходим из цикла и возвращаем данные
         except aiohttp.ClientProxyConnectionError:
             if _ < MAX_RETRIES - 1:  # Если это не последняя попытка
                 await asyncio.sleep(DELAY_BETWEEN_RETRIES)  # Добавляем задержку перед следующей попыткой
             else:
                 raise  # Если это была последняя попытка, выбрасываем исключение
+
 
 def find_keywords_in_page(data):
     try:
@@ -160,6 +148,7 @@ def find_video_titles(data, max_titles=20):
         print(f"An error occurred find_video_titles: {e}")
     return titles
 
+
 # функия для получения сслыки на фото, сслыки на видео и названий видео
 def find_video_titles_url_thumb(data, max_titles=20):
     """
@@ -179,7 +168,8 @@ def find_video_titles_url_thumb(data, max_titles=20):
         contents = get_value_by_path(data, path_to_contents)
         for i, content in enumerate(contents):
             title_path = ["richItemRenderer", "content", "videoRenderer", "title", "runs", 0, "text"]
-            url_path = ["richItemRenderer", "content", "videoRenderer", "navigationEndpoint", "commandMetadata", "webCommandMetadata", "url"]
+            url_path = ["richItemRenderer", "content", "videoRenderer", "navigationEndpoint", "commandMetadata",
+                        "webCommandMetadata", "url"]
             thumbnail_path = ["richItemRenderer", "content", "videoRenderer", "thumbnail", "thumbnails", 0, "url"]
 
             title = get_value_by_path(content, title_path)
@@ -199,6 +189,7 @@ def find_video_titles_url_thumb(data, max_titles=20):
     except Exception as e:
         print(f"An error occurred in find_video_titles: {e}")
     return videos
+
 
 async def find_popular_video_titles(channel_name, token, proxy_url):
     headers = {
@@ -231,11 +222,8 @@ async def find_popular_video_titles(channel_name, token, proxy_url):
         },
         'continuation': f'{token}',
     }
-    # proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
     video_titles = []
     videos = []
-    # proxy_url_rotate = 'http://83.149.70.159:13012'
-
 
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
@@ -250,8 +238,7 @@ async def find_popular_video_titles(channel_name, token, proxy_url):
                                         json=json_data) as response:
 
                     data = await response.json()
-                    # with open('testtest.json', 'w') as file:
-                    #     json.dump(data, file, indent=4)
+
                     logger.info(f"Response status code find_popular_video_titles: {response.status}")
 
                     items = data['onResponseReceivedActions'][1]['reloadContinuationItemsCommand']['continuationItems']
@@ -272,7 +259,8 @@ async def find_popular_video_titles(channel_name, token, proxy_url):
                             }
                             videos.append(video_info)
                             video_titles.append(title)
-                    return {'video_titles': video_titles, 'videos': videos}  # Возвращаем video_titles после успешного выполнения запроса
+                    return {'video_titles': video_titles,
+                            'videos': videos}  # Возвращаем video_titles после успешного выполнения запроса
 
         except Exception as e:
             print(f"An error occurred in find_popular_video_titles: {e}")
@@ -281,25 +269,39 @@ async def find_popular_video_titles(channel_name, token, proxy_url):
             else:
 
                 raise  # Если это была последняя попытка, выбрасываем исключение
-
-async def general_func(channel_name, proxy_url):
+async def general_func_concurence(channel_name, proxy_url):
     retry_count = 0
     while retry_count < 20:  # Повторяем до 20 раз
         try:
-            data = await get_channel_data(channel_name=channel_name, proxy_url=proxy_url)
-
-            # ПОКА ЧТО отключил использования встроенных ключей
-            video_titles_first = find_video_titles(data, max_titles=15)
-            first_titles_list = find_video_titles_url_thumb(data, max_titles=15)
+            data = await get_channel_data(channel_name, proxy_url=proxy_url)
+            video_titles_first = find_video_titles(data, max_titles=10)
             tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
             popular_titles = []
             if len(tokens) > 1:
                 token_to_popular = tokens[2]['token']
                 popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular, proxy_url=proxy_url)
-            all_titles = video_titles_first + popular_titles['video_titles']
-            all_titles_to_front = first_titles_list + popular_titles['videos']
-            keys = await  get_keywords(all_titles)
-            return [keys, all_titles_to_front]
+
+
+            # что бы было не слишком много заголовков. И в идеале только популырные
+            if len(popular_titles['video_titles']) > 1:
+                all_titles = video_titles_first[:5] + popular_titles['video_titles'][:5]
+            else:
+                all_titles = video_titles_first[:7]
+
+            return {channel_name: all_titles}
         except aiohttp.ClientProxyConnectionError:
             retry_count += 1
             await asyncio.sleep(5)  # Задержка 5 секунд перед следующей попыткой
+
+
+async def process_channel(channel_name, proxy_url):
+    return await general_func_concurence(channel_name, proxy_url)
+
+
+async def func_for_titles_competitors(selected_competitors, proxy_url):
+    if not selected_competitors:
+        return []
+    tasks = [process_channel(channel_name, proxy_url) for channel_name in selected_competitors]
+    results = await asyncio.gather(*tasks)
+    return results
+
