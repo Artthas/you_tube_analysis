@@ -6,6 +6,7 @@ export const simulateReqServer = (dispatch: DispatchType, mockData: MockDataType
   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
   setTimeout(() => {
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+      dispatch({ type: 'SET_YOUTUBE_CHANNEL_NAME', payload: 'rapdailyofficial' });
       dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
-  }, 5000);
+  }, 1000);
 }

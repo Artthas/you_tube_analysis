@@ -19,30 +19,42 @@ export default function SearchResult() {
     return <div className={styles['error-message']}>An error occurred while loading the results. Please try again.</div>;
   }
 
-  if (searchResult.length === 0) {
+  if (!searchResult.all_this_shit_is_beacuse_of_this_youtube_channel) {
     return <></>;
   }
 
   return (
-    <ul className={styles['main']}>
-      {searchResult.map((item) =>
-        <li className={styles['main-item']} key={item?.video_url}>
-          <Link className={styles['main-item-link']} href={item?.video_url}>
-            <Image
-              className={styles['main-image']}
-              src={item?.thumbnail_360x202}
-              width={250}
-              height={150}
-              alt="Preview"
-            />
-          </Link>
-          <div className={styles['main-info']}>
-            <Link className={styles['main-title']} href={item?.video_url}>{item.title_text}</Link>
-            <p className={styles['main-inner']}>{item.view_count} • {item.published_time}</p>
-            <Link className={styles['main-channel-name']} href={item?.channel_url}><span>Channel:</span>{item.channel_text}</Link>
-          </div>
-        </li>
-      )}
-    </ul>
+    <section className={styles['main']}>
+      <ul className={styles['main-video-list']}>
+        {searchResult.videos_from_first_channel.map((item) =>
+          <li className={styles['main-video-item']} key={item?.url}>
+            <div className={styles['main-video-item-wrapper']}>
+              <Link className={styles['main-video-link']} href={item?.url}>
+                <Image
+                  className={styles['main-video-image']}
+                  src={item?.thumbnail}
+                  width={250}
+                  height={150}
+                  alt="Preview"
+                />
+                <p className={styles['main-video-title']}>{item.title}</p>
+              </Link>
+            </div>
+          </li>
+        )}
+      </ul>
+      <ul className={styles['main-idea-list']}>
+        {Object.values(searchResult.generated_ideas).map((item) =>
+          <li className={styles['main-idea-item']} key={item?.description}>
+            <div className={styles['main-idea-item-wrapper']}>
+              <p>Titles:</p>
+              <p>{item.titles.map((str) => str)}</p>
+              <p>Description:</p>
+              <p>{item.description}</p>
+            </div>
+          </li>
+        )}
+      </ul>
+    </section>
   );
 }

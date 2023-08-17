@@ -1,6 +1,24 @@
 @import url('https://fonts.googleapis.com/css?family=Orbitron&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Hind&display=swap');
 
+.main {
+  width: 70%;
+  max-width: 800px;
+  margin: 40px;
+}
+
+.form-channel-name {
+  display: block;
+  color: #52627f;
+  margin-top: 15px;
+  text-decoration: none;
+
+  span {
+    font-weight: bold;
+    color: #3c4b66;
+  }
+}
+
 .form-wrapper {
   padding: 1px;
   border-radius: var(--border-radius);
@@ -9,7 +27,7 @@
     -2px -2px 6px rgba(#fff, .6),
     2px 2px 12px #c8d8e7;
   width: 380px;
-  margin: 40px;
+  margin: auto;
 }
 
 .form {
@@ -104,3 +122,23 @@
     background-color: lighten(#e3edf7, 3%);
   }
 };
+
+.table-title-list {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+}
+
+.table-title-item {
+  color: #6d7f8f;
+  font-weight: 1000;
+  font-family: "Orbitron", sans-serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  background-color: #6d7f8f;
+  color: transparent;
+  text-shadow: 0.5px 0.5px 0.75px rgba(255,255,255,0.3);
+  -webkit-background-clip: text;
+     -moz-background-clip: text;
+          background-clip: text;
+}

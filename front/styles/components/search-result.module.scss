@@ -1,48 +1,49 @@
 .main {
-  list-style: none;
-  width: 50%;
-  max-width: 800px;
-  border-top: 1px solid rgb(199, 199, 199);
-  padding-top: 30px;
-}
-
-.main-item {
-  margin-bottom: 20px;
   display: flex;
-  column-gap: 30px;
+  justify-content: space-between;
+  column-gap: 100px;
+  width: 70%;
+  max-width: 800px;
+  border-top: 1px solid #b6c9dc;
+  padding-top: 40px;
 }
 
-.main-image {
+.main-video-list {
+  list-style: none;
+}
+
+.main-video-item {
+  margin-bottom: 40px;
+  width: min-content;
+  padding: 1px;
+  border-radius: var(--border-radius);
+  background: linear-gradient(-67deg, rgba(#c8d8e7, .7), rgba(255,255,255,.8));
+  box-shadow: 
+    -2px -2px 6px rgba(#fff, .6),
+    2px 2px 12px #c8d8e7;
+}
+
+.main-video-item-wrapper {
+  padding: 16px 16px;
+  background-color: #e2e9f4;
+  border-radius: var(--border-radius);
+}
+
+.main-video-link {
+  text-decoration-line: none;
+}
+
+.main-video-image {
   border-radius: 15px;
+  margin-bottom: 10px;
+  -webkit-box-shadow: 0px 0px 19px -6px rgba(0,0,0,0.75);
+  -moz-box-shadow: 0px 0px 19px -6px rgba(0,0,0,0.75);
+  box-shadow: 0px 0px 19px -6px rgba(0,0,0,0.75);
 }
 
-.main-info {
-  padding-top: 10px;
-}
-
-.main-title {
-  color: black;
+.main-video-title {
+  color: #3c4b66;
   font-weight: bold;
-  text-decoration-line: none;
-  font-size: 15px;
-}
-
-.main-inner {
-  color: grey;
-  font-size: 12px;
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-
-.main-channel-name {
-  color: #545454;
-  text-decoration-line: none;
-
-  span {
-    color: grey;
-    font-size: 12px;
-    margin-right: 5px;
-  }
 }
 
 .error-message {
@@ -50,4 +51,37 @@
   font-size: 16px;
   text-align: center;
   margin-top: 20px;
+}
+
+.main-idea-list {
+  list-style: none;
+}
+
+.main-idea-item {
+  margin-bottom: 40px;
+  padding: 1px;
+  border-radius: var(--border-radius);
+  background: linear-gradient(-67deg, rgba(#c8d8e7, .7), rgba(255,255,255,.8));
+  box-shadow: 
+    -2px -2px 6px rgba(#fff, .6),
+    2px 2px 12px #c8d8e7;
+
+  p {
+    color: #3c4b66;
+  }
+
+  p:first-of-type,
+  p:nth-of-type(3) {
+    font-weight: bold;
+  }
+
+  p:nth-of-type(2) {
+    margin-bottom: 10px
+  }
+}
+
+.main-idea-item-wrapper {
+  padding: 16px 16px;
+  background-color: #e2e9f4;
+  border-radius: var(--border-radius);
 }
