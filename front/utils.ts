@@ -3,6 +3,7 @@ type MockDataType = { final_json: any };
 
 export const simulateReqServer = (dispatch: DispatchType, mockData: MockDataType) => {
   const { final_json } = mockData;
+  dispatch({ type: 'SET_YOUTUBE_CHANNEL_NAME', payload: '' });
   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
   setTimeout(() => {
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });

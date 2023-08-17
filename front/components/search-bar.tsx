@@ -22,33 +22,33 @@ export default function SearchBar() {
   const handleFormSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    // simulateReqServer(dispatch, mockData);
+    simulateReqServer(dispatch, mockData);
 
-    try {
-      dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youtubeChannelNameTemp}`);
-      console.log(response);
-      if (!response.ok) {
-        dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
-        dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
-        throw new Error('Ошибка сети');
-      }
-      const { final_json } = await response.json();
+    // try {
+    //   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
+    //   const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youtubeChannelNameTemp}`);
+    //   console.log(response);
+    //   if (!response.ok) {
+    //     dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+    //     dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
+    //     throw new Error('Ошибка сети');
+    //   }
+    //   const { final_json } = await response.json();
       
-      if (final_json === undefined) {
-        dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
-      }
+    //   if (final_json === undefined) {
+    //     dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
+    //   }
 
-      dispatch({ type: 'SET_YOUTUBE_CHANNEL_NAME', payload: youtubeChannelNameTemp });
-      dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
-    } catch (error) {
-      dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
-      dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
-      console.error("Произошла ошибка при получении данных:", error);
-      return null;
-    } finally {
-      dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
-    }
+    //   dispatch({ type: 'SET_YOUTUBE_CHANNEL_NAME', payload: youtubeChannelNameTemp });
+    //   dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
+    // } catch (error) {
+    //   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+    //   dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
+    //   console.error("Произошла ошибка при получении данных:", error);
+    //   return null;
+    // } finally {
+    //   dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
+    // }
   }
 
   return (
