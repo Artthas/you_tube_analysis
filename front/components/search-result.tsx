@@ -48,7 +48,7 @@ export default function SearchResult() {
           <li className={styles['main-idea-item']} key={item?.description}>
             <div className={styles['main-idea-item-wrapper']}>
               <p>Titles:</p>
-              <p>{item.titles.map((str) => <span>- {str}</span>)}</p>
+              <p>{item.titles.map((str) => <span key={str}>- {str}</span>)}</p>
               <p>Description:</p>
               <p>{item.description}</p>
             </div>
