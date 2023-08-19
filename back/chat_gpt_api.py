@@ -111,15 +111,15 @@ async def create_ideas(general_ch, comp_ch_list=None):
        - Seem like a seamless continuation of the main channel's content.
        - Match the mood, theme, and tone of voice of the main channel titles.
     6. For each idea, ensure:
-       - The main title is unique and consists of at least four words.
-       - The two alternative titles or synonyms also consist of at least four words and should be variations or rephrasings of the main title.
+       - The main title is unique and consists of AT LEAST FOUR WORDS.
+       - The two alternative titles or synonyms also consist of AT LEAST FOUR WORDS EACH and should be variations or rephrasings of the main title.
        - A short description that aligns with the titles and provides a brief overview of the video's content.
 
     Structure the response as:
     IDEA:
-    Main Title: [Title here]
-    Alternative Title 1: [Variation or rephrasing of the main title]
-    Alternative Title 2: [Another variation or rephrasing of the main title]
+    Main Title: [Title here with AT LEAST FOUR WORDS]
+    Alternative Title 1: [Variation or rephrasing of the main title with AT LEAST FOUR WORDS]
+    Alternative Title 2: [Another variation or rephrasing of the main title with AT LEAST FOUR WORDS]
     Description: [Short description that complements the titles]
 
     Separate each idea with '---'.
