@@ -25,7 +25,7 @@ export default function SearchResult() {
 
   return (
     <section className={styles['main']}>
-      <ul className={styles['main-video-list']}>
+      {/* <ul className={styles['main-video-list']}>
         {searchResult.videos_from_first_channel.map((item) =>
           <li className={styles['main-video-item']} key={item?.url}>
             <div className={styles['main-video-item-wrapper']}>
@@ -42,7 +42,7 @@ export default function SearchResult() {
             </div>
           </li>
         )}
-      </ul>
+      </ul> */}
       <ul className={styles['main-idea-list']}>
         {Object.values(searchResult.generated_ideas).map((item) =>
           <li className={styles['main-idea-item']} key={item?.description}>

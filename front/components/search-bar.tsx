@@ -68,10 +68,10 @@ export default function SearchBar() {
           {youtubeChannelName ? <Link className={styles['form-channel-name']} href={searchResult.all_this_shit_is_beacuse_of_this_youtube_channel}>Channel: <span>{youtubeChannelName}</span></Link> : ''}
         </form>
       </div>
-      {youtubeChannelName ? <ul className={styles['table-title-list']}>
+      {/* {youtubeChannelName ? <ul className={styles['table-title-list']}>
         <li className={styles['table-title-item']}>Videos</li>
         <li className={styles['table-title-item']}>Ideas</li>
-      </ul> : ''}
+      </ul> : ''} */}
     </section>
   )
 }
