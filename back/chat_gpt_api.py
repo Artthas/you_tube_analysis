@@ -100,26 +100,27 @@ async def create_ideas(general_ch, comp_ch_list=None):
         logger.warning("The competitor's videos are not relevant enough.")
 
     style_prompt = f"""
-    Algorithm for Generating Video Ideas:
+    Instructions for Generating Video Ideas:
 
-    1. Analyze the main channel titles: {main_channel_titles}.
-    2. Understand the style, mood, content themes, and tone of voice of the main channel.
-    3. If the main channel has a youthful vibe, maintain a similar energetic and modern tone. If it's more serious, keep the tone mature and authoritative.
-    4. If available, consider the relevant competitor's titles {', '.join(relevant_competitors)} for inspiration, but DO NOT replicate them.
-    5. Generate entirely new video ideas that:
-       - Align closely with the main channel's essence.
-       - Feel like a natural extension of the main channel's content.
-       - Have a similar mood, theme, and tone of voice as the main channel titles.
-    6. For each idea, provide:
-       - Three title options.
-       - A short description.
+    1. Begin by analyzing the main channel titles: {main_channel_titles}.
+    2. Deduce the style, mood, content themes, and tone of voice of the main channel.
+    3. If the main channel exudes a youthful aura, the generated titles should reflect an energetic and modern tone. If the channel's tone is more serious, the titles should be mature and authoritative.
+    4. Use the relevant competitor's titles {', '.join(relevant_competitors)} as a source of inspiration, but ensure that the generated titles are original and not mere replicas.
+    5. The goal is to generate entirely new video ideas that:
+       - Resonate with the main channel's core essence.
+       - Seem like a seamless continuation of the main channel's content.
+       - Match the mood, theme, and tone of voice of the main channel titles.
+    6. For each idea, ensure:
+       - The main title is unique and consists of at least four words.
+       - The two alternative titles or synonyms also consist of at least four words and should be variations or rephrasings of the main title.
+       - A short description that aligns with the titles and provides a brief overview of the video's content.
 
     Structure the response as:
     IDEA:
-    Title Option 1: [Title here]
-    Title Option 2: [Title here]
-    Title Option 3: [Title here]
-    Description: [Short description here]
+    Main Title: [Title here]
+    Alternative Title 1: [Variation or rephrasing of the main title]
+    Alternative Title 2: [Another variation or rephrasing of the main title]
+    Description: [Short description that complements the titles]
 
     Separate each idea with '---'.
     """
