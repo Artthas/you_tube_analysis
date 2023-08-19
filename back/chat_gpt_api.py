@@ -30,7 +30,7 @@ async def get_keywords(text_array):
     # print(text)
     # Шаг 1: Получаем описание канала на основе заголовков видео
     description_completion = await openai.ChatCompletion.acreate(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[
             {"role": "system",
              "content": "You are an AI trained to analyze and understand the main theme of a YouTube channel based on its video titles."},
@@ -44,7 +44,7 @@ async def get_keywords(text_array):
 
     # Шаг 2: Генерируем ключевые слова на основе полученного описания
     keywords_completion = await openai.ChatCompletion.acreate(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an AI trained to generate keywords based on a given description."},
             {"role": "user",
@@ -74,7 +74,7 @@ async def create_ideas(general_ch, comp_ch_list=None):
         relevance_prompt = f"Given the video titles from the main channel {main_channel_titles} and the competitor's titles {competitor_titles}, are they relevant in terms of content and theme? Please answer with a simple 'YES' or 'NO'."
 
         relevance_response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert in analyzing content relevance."},
                 {"role": "user", "content": relevance_prompt}
@@ -126,7 +126,7 @@ async def create_ideas(general_ch, comp_ch_list=None):
 
     for attempt in range(MAX_RETRIES):
         ideas_response = await openai.ChatCompletion.acreate(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a creative expert skilled in generating video topic ideas."},
                 {"role": "user", "content": style_prompt}
