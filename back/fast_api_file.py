@@ -65,6 +65,7 @@ async def get_keys(channel_name: str):
             old_titles = dict_from_gpt["first_titles"]
             description = dict_from_gpt['description']
             print('>>>>>>>>>>>> I have already old titles and description <<<<<<<<<<<<<<<')
+            print(description)
             general_channel = {channel_name: old_titles}
             # Логирование сгенерированных ключевых слов
             logger.info(f"Generated keys: {keys}")

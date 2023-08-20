@@ -187,3 +187,21 @@ test = [
         ]
     }
 ]
+
+
+def views_to_int(view_string):
+    """
+    Преобразует строку просмотров в число.
+
+    :param view_string: Строка вида "4,599 views".
+    :return: Целое число просмотров.
+    """
+    # Удаление всех нецифровых символов
+    view_number = int(''.join(filter(str.isdigit, view_string)))
+    return view_number
+
+
+
+"""
+/onResponseReceivedActions/1/reloadContinuationItemsCommand/continuationItems/0/richItemRenderer/content/videoRenderer/shortViewCountText/accessibility/accessibilityData/label
+"""
