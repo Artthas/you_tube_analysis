@@ -9,7 +9,8 @@ import asyncio
 import logging
 logger = logging.getLogger(__name__)
 
-
+"""
+"""
 
 async def get_channel_data(channel_name, proxy_url):
     """
@@ -29,10 +30,6 @@ async def get_channel_data(channel_name, proxy_url):
         'Sec-Fetch-Site': 'same-origin',
         'Sec-Fetch-User': '?1',
     }
-    # Прокси-сервер для запроса
-    # proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
-    #
-    # proxy_url_rotate = 'http://83.149.70.159:13012'
 
     # Создание соединителя для прокси
     connector = ProxyConnector.from_url(proxy_url)
@@ -160,10 +157,40 @@ def find_video_titles(data, max_titles=20):
         print(f"An error occurred find_video_titles: {e}")
     return titles
 
+
+def views_to_int(view_string):
+    """
+    Преобразует строку просмотров в число.
+
+    :param view_string: Строка вида "4,599 views" или "11 million views".
+    :return: Целое число просмотров.
+    """
+    # Если в строке есть слово "million", то умножаем число на 1,000,000
+    if 'million' in view_string:
+        number_part = int(''.join(filter(str.isdigit, view_string)))
+        return number_part * 1_000_000
+
+    # Если в строке есть слово "billion", то умножаем число на 1,000,000,000
+    elif 'billion' in view_string:
+        number_part = int(''.join(filter(str.isdigit, view_string)))
+        return number_part * 1_000_000_000
+
+    # Если в строке есть слово "thousand", то умножаем число на 1,000
+    elif 'thousand' in view_string:
+        number_part = int(''.join(filter(str.isdigit, view_string)))
+        return number_part * 1_000
+
+    # В противном случае просто возвращаем число
+    else:
+        return int(''.join(filter(str.isdigit, view_string)))
+
+
+
+
 # функия для получения сслыки на фото, сслыки на видео и названий видео
 def find_video_titles_url_thumb(data, max_titles=20):
     """
-    Ищет названия видео, ссылки на видео и ссылки на изображения на странице канала YouTube.
+    Ищет названия видео, ссылки на видео, ссылки на изображения и количество просмотров на странице канала YouTube.
 
     :param data: Словарь с данными страницы.
     :param max_titles: Максимальное количество названий, которые нужно вернуть.
@@ -181,16 +208,19 @@ def find_video_titles_url_thumb(data, max_titles=20):
             title_path = ["richItemRenderer", "content", "videoRenderer", "title", "runs", 0, "text"]
             url_path = ["richItemRenderer", "content", "videoRenderer", "navigationEndpoint", "commandMetadata", "webCommandMetadata", "url"]
             thumbnail_path = ["richItemRenderer", "content", "videoRenderer", "thumbnail", "thumbnails", 0, "url"]
+            view_count_path = ["richItemRenderer", "content", "videoRenderer", "viewCountText", "simpleText"]
 
             title = get_value_by_path(content, title_path)
             url = get_value_by_path(content, url_path)
             thumbnail = get_value_by_path(content, thumbnail_path)
+            view_count = views_to_int(get_value_by_path(content, view_count_path))
 
-            if title and url and thumbnail:
+            if title and url and thumbnail and view_count:
                 video_info = {
                     "title": title,
                     "url": f"https://www.youtube.com/{url}",
-                    "thumbnail": thumbnail
+                    "thumbnail": thumbnail,
+                    "view_count": view_count
                 }
                 videos.append(video_info)
 
@@ -198,7 +228,19 @@ def find_video_titles_url_thumb(data, max_titles=20):
                 break
     except Exception as e:
         print(f"An error occurred in find_video_titles: {e}")
-    return videos
+
+    sorted_videos = sorted(videos, key=lambda x: x['view_count'], reverse=True)
+    # Взятие топ 20% видео
+    top_20_percent = int(len(sorted_videos) * 0.2)
+    top_videos = sorted_videos[:top_20_percent]
+
+    return {
+        'videos': videos,  # исходный список видео
+        'top_videos': top_videos  # топ 20% видео
+    }
+
+    # return videos
+
 
 async def find_popular_video_titles(channel_name, token, proxy_url):
     headers = {
@@ -231,12 +273,8 @@ async def find_popular_video_titles(channel_name, token, proxy_url):
         },
         'continuation': f'{token}',
     }
-    # proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
     video_titles = []
     videos = []
-    # proxy_url_rotate = 'http://83.149.70.159:13012'
-
-
     MAX_RETRIES = 20
     DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
 
@@ -250,7 +288,7 @@ async def find_popular_video_titles(channel_name, token, proxy_url):
                                         json=json_data) as response:
 
                     data = await response.json()
-                    # with open('testtest.json', 'w') as file:
+                    # with open('popularTEST.json', 'w') as file:
                     #     json.dump(data, file, indent=4)
                     logger.info(f"Response status code find_popular_video_titles: {response.status}")
 
@@ -262,17 +300,35 @@ async def find_popular_video_titles(channel_name, token, proxy_url):
                                         "commandMetadata", "webCommandMetadata", "url"]
                             thumbnail_path = ["richItemRenderer", "content", "videoRenderer", "thumbnail", "thumbnails",
                                               0, "url"]
+                            view_count_path = ["richItemRenderer", "content", "videoRenderer", "shortViewCountText",
+                                               "accessibility", "accessibilityData", "label"]
 
                             url = get_value_by_path(item, url_path)
                             thumbnail = get_value_by_path(item, thumbnail_path)
+                            view_count_string = get_value_by_path(item, view_count_path)
+                            view_count = views_to_int(view_count_string)
+
                             video_info = {
                                 "title": title,
                                 "url": f"https://www.youtube.com/{url}",
-                                "thumbnail": thumbnail
+                                "thumbnail": thumbnail,
+                                "views": view_count
                             }
                             videos.append(video_info)
-                            video_titles.append(title)
-                    return {'video_titles': video_titles, 'videos': videos}  # Возвращаем video_titles после успешного выполнения запроса
+                    #         video_titles.append(title)
+
+                    # Сортировка видео по количеству просмотров
+                    sorted_videos = sorted(videos, key=lambda x: x['views'], reverse=True)
+                    # Взятие топ 20% видео
+                    top_20_percent = int(len(sorted_videos) * 0.2)
+                    top_videos = sorted_videos[:top_20_percent]
+                    video_titles = [video["title"] for video in top_videos]
+                    return {
+                        'video_titles': video_titles,
+                        'videos': videos,  # исходный список видео
+                        'top_videos': top_videos  # топ 20% видео
+                    }
+                    # return {'video_titles': video_titles, 'videos': videos}  # Возвращаем video_titles после успешного выполнения запроса
 
         except Exception as e:
             print(f"An error occurred in find_popular_video_titles: {e}")
@@ -288,18 +344,52 @@ async def general_func(channel_name, proxy_url):
         try:
             data = await get_channel_data(channel_name=channel_name, proxy_url=proxy_url)
 
-            # ПОКА ЧТО отключил использования встроенных ключей
-            video_titles_first = find_video_titles(data, max_titles=15)
-            first_titles_list = find_video_titles_url_thumb(data, max_titles=15)
+            # Получаем первые 15 видео, отсортированных по просмотрам
+            first_titles_dict = find_video_titles_url_thumb(data, max_titles=15)
+            # print(json.dumps(first_titles_list, indent=4))
+
+            # Берем названия топ видео из этого списка
+            video_titles_first = [video['title'] for video in first_titles_dict['top_videos']]
+
             tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
-            popular_titles = []
+            popular_titles_dict = {}
             if len(tokens) > 1:
                 token_to_popular = tokens[2]['token']
-                popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular, proxy_url=proxy_url)
-            all_titles = video_titles_first + popular_titles['video_titles']
-            all_titles_to_front = first_titles_list + popular_titles['videos']
-            keys = await  get_keywords(all_titles)
+                popular_titles_dict = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular, proxy_url=proxy_url)
+            else:
+                popular_titles_dict = {'video_titles': [], 'videos': []}
+
+
+            all_titles = video_titles_first + popular_titles_dict['video_titles']
+            all_titles_to_front = first_titles_dict['top_videos'] + popular_titles_dict['top_videos']
+            keys = await get_keywords(all_titles)
             return [keys, all_titles_to_front]
         except aiohttp.ClientProxyConnectionError:
             retry_count += 1
             await asyncio.sleep(5)  # Задержка 5 секунд перед следующей попыткой
+
+
+
+
+# async def general_func(channel_name, proxy_url):
+#     retry_count = 0
+#     while retry_count < 20:  # Повторяем до 20 раз
+#         try:
+#             data = await get_channel_data(channel_name=channel_name, proxy_url=proxy_url)
+#
+#             # ПОКА ЧТО отключил использования встроенных ключей
+#             video_titles_first = find_video_titles(data, max_titles=15)
+#             first_titles_list = find_video_titles_url_thumb(data, max_titles=15)
+#             tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
+#             popular_titles = []
+#             if len(tokens) > 1:
+#                 token_to_popular = tokens[2]['token']
+#                 popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular, proxy_url=proxy_url)
+#             print(json.dumps(popular_titles, indent=4))
+#             all_titles = video_titles_first + popular_titles['video_titles']
+#             all_titles_to_front = first_titles_list + popular_titles['videos']
+#             keys = await get_keywords(all_titles)
+#             return [keys, all_titles_to_front]
+#         except aiohttp.ClientProxyConnectionError:
+#             retry_count += 1
+#             await asyncio.sleep(5)  # Задержка 5 секунд перед следующей попыткой
