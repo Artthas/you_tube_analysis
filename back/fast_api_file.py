@@ -65,8 +65,9 @@ async def get_keys(channel_name: str):
             old_titles = dict_from_gpt["first_titles"]
             description = dict_from_gpt['description']
             print('>>>>>>>>>>>> I have already old titles and description <<<<<<<<<<<<<<<')
-            print(description)
+            # print(description)
             general_channel = {channel_name: old_titles}
+            # print(json.dumps(general_channel, indent=4))
             # Логирование сгенерированных ключевых слов
             logger.info(f"Generated keys: {keys}")
 
@@ -96,12 +97,18 @@ async def get_keys(channel_name: str):
                 selected_competitors = []
 
             competitors = await func_for_titles_competitors(selected_competitors, proxy_url=proxy_url)
+            print(selected_competitors)
+            print("COMPETITORS*COMPETITORS*COMPETITORS*COMPETITORS")
+            # print(json.dumps(competitors, indent=4))
             list_with_comptetitors_url_to_front = []
 
-            if len(competitors) > 1:
-                for channel_dict in competitors:
-                    for channel_name in channel_dict.keys():
-                        list_with_comptetitors_url_to_front.append(f"https://www.youtube.com/@{channel_name}/videos")
+            if len(selected_competitors) > 0:
+                for comp in selected_competitors:
+                    list_with_comptetitors_url_to_front.append(f"https://www.youtube.com/@{comp}/videos")
+            # if len(competitors) > 1:
+            #     for channel_dict in competitors:
+            #         for channel_name in channel_dict.keys():
+            #             list_with_comptetitors_url_to_front.append(f"https://www.youtube.com/@{channel_name}/videos")
 
             print('***************************************************')
             json_to_front['competitors_channels'] = list_with_comptetitors_url_to_front

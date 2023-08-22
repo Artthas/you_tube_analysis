@@ -65,13 +65,21 @@ async def create_ideas(general_ch, comp_ch_list=None):
     # print(comp_ch_list)
     main_channel_titles = list(general_ch.values())[0]
     relevant_competitors = []
+    relevant_competitors_str = ""
     # Проверка релевантности видео конкурентов
     for comp_ch in comp_ch_list:
-        main_channel_titles = list(general_ch.values())[0]
-        competitor_channel_name = list(comp_ch.keys())[0]
-        competitor_titles = ', '.join(comp_ch[competitor_channel_name])
+        channel_info = comp_ch[0]
+        competitors_titles = channel_info['first_titles']
+        print('>>>>>>>>>>>>>>>>> comp channel <<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+        # print(competitors_titles)
+        # print(type(competitors_titles))
+        competitors_description = channel_info['description']
+        # print(competitors_description)
 
-        relevance_prompt = f"Given the video titles from the main channel {main_channel_titles} and the competitor's titles {competitor_titles}, are they relevant in terms of content and theme? Please answer with a simple 'YES' or 'NO'."
+        print('>>>>>>>>>>>>>>>>>>> general channel <<<<<<<<<<<<<<<<<<<<<<<<')
+        main_channel_titles = list(general_ch.values())[0]
+        # print(main_channel_titles)
+        relevance_prompt = f"Given the video titles from the main channel {main_channel_titles} and the description of the competitor's channel {competitors_description}, are they relevant in terms of content and theme? Please answer with a simple 'YES' or 'NO'."
 
         relevance_response = await openai.ChatCompletion.acreate(
             model="gpt-4",
@@ -81,31 +89,30 @@ async def create_ideas(general_ch, comp_ch_list=None):
             ]
         )
         relevance_answer = relevance_response.choices[0].message['content'].lower()
-        # print('relevant answer')
-        # print(relevance_answer)
-        # print(main_channel_titles)
-        # print('********')
-        # print(competitor_titles)
         time.sleep(2)
 
         negative_responses = ["no", "not relevant", "not similar", "not alike", "dissimilar", "unrelated"]
         if any(word in relevance_answer for word in negative_responses):
-            logger.info(f"Titles from {competitor_channel_name} are not relevant.")
-
+            logger.info(f"Titles from one channel are not relevant.")
             continue
 
-        relevant_competitors.extend(comp_ch[competitor_channel_name])
+        # relevant_competitors.extend(competitors_titles)
+        if competitors_titles not in relevant_competitors_str:
+            relevant_competitors_str += competitors_titles
 
     if not relevant_competitors:
         logger.warning("The competitor's videos are not relevant enough.")
 
+    print('relevant_competitors relevant_competitors relevant_competitors relevant_competitors')
+    # print(relevant_competitors_test)
+    # print(relevant_competitors)
     style_prompt = f"""
     Instructions for Generating Video Ideas:
 
     1. Begin by analyzing the main channel titles: {main_channel_titles}.
     2. Deduce the style, mood, content themes, and tone of voice of the main channel.
     3. If the main channel exudes a youthful aura, the generated titles should reflect an energetic and modern tone. If the channel's tone is more serious, the titles should be mature and authoritative.
-    4. Use the relevant competitor's titles {', '.join(relevant_competitors)} as a source of inspiration, but ensure that the generated titles are original and not mere replicas.
+    4. Use the relevant competitor's titles {relevant_competitors_str} as a source of inspiration, but ensure that the generated titles are original and not mere replicas.
     5. The goal is to generate entirely new video ideas that:
        - Resonate with the main channel's core essence.
        - Seem like a seamless continuation of the main channel's content.

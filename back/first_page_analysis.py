@@ -30,10 +30,6 @@ async def get_channel_data(channel_name, proxy_url):
         'Sec-Fetch-Site': 'same-origin',
         'Sec-Fetch-User': '?1',
     }
-    # Прокси-сервер для запроса
-    # proxy_url = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
-    #
-    # proxy_url_rotate = 'http://83.149.70.159:13012'
 
     # Создание соединителя для прокси
     connector = ProxyConnector.from_url(proxy_url)
@@ -75,8 +71,8 @@ async def get_channel_data(channel_name, proxy_url):
                     data = json.loads(json_str)
 
                     # Запись данных в файл
-                    with open('new_test.json', 'w') as file:
-                        json.dump(data, file, indent=4)
+                    # with open('new_test.json', 'w') as file:
+                    #     json.dump(data, file, indent=4)
 
                     return data  # Если все прошло успешно, выходим из цикла и возвращаем данные
         except aiohttp.ClientProxyConnectionError:
