@@ -138,11 +138,14 @@ class YouTubeScraper:
                 except:
                     pass
 
-            self.dict_channel_videos = {channel_name.lower(): {
+            self.dict_channel_videos[channel_name.lower()] = {
                 'all_new_videos': videos,  # исходный список видео
-                'top_new_videos': sorted(videos, key=lambda x: x['view_count'], reverse=True)[:int(len(videos) * 0.2)]
-                # топ 20% видео
-            }}
+                'top_new_videos': sorted(videos, key=lambda x: x['view_count'], reverse=True)[:int(len(videos) * 0.2)],
+                'all_popular_videos' :None,
+                'top_popular_videos': None
+            }
+
+
         except Exception as e:
             print(f"An error occurred in first_page_analysis: {e}")
 
@@ -269,21 +272,19 @@ class YouTubeScraper:
                     await asyncio.sleep(DELAY_BETWEEN_RETRIES)  # Добавляем задержку перед следующей попыткой
                 else:
                     raise  # Если это была последняя попытка, выбрасываем исключение
-    async def parse_concurence(self):
+    async def parse_concurence(self, ccompetitor_name):
 
-        if len(self.competitors_list) > 0:
-            for competitor in self.competitors_list:
-                competitor_name = competitor.lower()
-                await self.get_page_with_new_videos_data(channel_name=competitor_name)
-                self.page_with_new_videos_analysis()
-                tokens = find_continuation_token(self.data_with_new_video, target_key='continuationCommand')
-                if len(tokens) > 1:
-                    self.continuation_token = tokens[2]['token']
-                if self.continuation_token:
-                    await self.get_data_from_page_with_popular_video_data(channel_name=competitor_name,
-                                                                              token=self.continuation_token)
-                self.dict_channel_videos[competitor_name]['description'] = await get_description(
-                    self.dict_channel_videos[competitor_name])
+        competitor_name = ccompetitor_name.lower()
+        await self.get_page_with_new_videos_data(channel_name=competitor_name)
+        self.page_with_new_videos_analysis()
+        tokens = find_continuation_token(self.data_with_new_video, target_key='continuationCommand')
+        if len(tokens) > 1:
+            self.continuation_token = tokens[2]['token']
+        if self.continuation_token:
+            await self.get_data_from_page_with_popular_video_data(channel_name=competitor_name,
+                                                                      token=self.continuation_token)
+        # self.dict_channel_videos[competitor_name]['description'] = await get_description(
+        #     self.dict_channel_videos[competitor_name])
 
 
 
@@ -328,38 +329,79 @@ class YouTubeScraper:
 # DaFuqBoom хрень канал
 # thefugitiveofficial   rapdailyofficial
 
-async def general_func():
-    channel_name = 'thefugitiveofficial'.lower()
+async def general_func(channel_name1):
+    '''
+
+    :param channel_name1:
+    :return:
+    '''
+    channel_name = channel_name1.lower()
     yt_scrap = YouTubeScraper(first_channel_name=channel_name)
+    MAX_RETRIES = 20
+    DELAY_BETWEEN_RETRIES = 5  # задержка в 5 секунд
+
+    try:
+        for _ in range(MAX_RETRIES):
+            try:
+                await yt_scrap.create_session()
+                await yt_scrap.get_page_with_new_videos_data(channel_name=yt_scrap.first_channel_name)
+                yt_scrap.page_with_new_videos_analysis()
+
+                tokens = find_continuation_token(yt_scrap.data_with_new_video, target_key='continuationCommand')
+                if len(tokens) > 1:
+                    yt_scrap.continuation_token = tokens[2]['token']
+                if yt_scrap.continuation_token:
+                    await yt_scrap.get_data_from_page_with_popular_video_data(channel_name=channel_name,
+                                                                              token=yt_scrap.continuation_token)
+
+                yt_scrap.dict_channel_videos[channel_name]['description'] = await get_description(
+                    yt_scrap.dict_channel_videos[channel_name])
+
+                # только для главного канала
+                yt_scrap.dict_channel_videos[channel_name]['key_words'] = await get_keywords(
+                    yt_scrap.dict_channel_videos[channel_name])
+                await yt_scrap.get_YT_search_html(yt_scrap.dict_channel_videos[channel_name]['key_words'])
+                break
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                await yt_scrap.close_session()
+
+                if _ < MAX_RETRIES - 1:  # Если это не последняя попытка
+                    await asyncio.sleep(DELAY_BETWEEN_RETRIES)  # Добавляем задержку перед следующей попыткой
+                else:
+                    raise  # Если это была последняя попытка, выбрасываем исключение
+
+    finally:
+        await yt_scrap.close_session()
+
+    MAX_RETRIES = 7
+    DELAY_BETWEEN_RETRIES = 2
+
     await yt_scrap.create_session()
-    await yt_scrap.get_page_with_new_videos_data(channel_name=yt_scrap.first_channel_name)
-    yt_scrap.page_with_new_videos_analysis()
 
-    tokens = find_continuation_token(yt_scrap.data_with_new_video, target_key='continuationCommand')
-    if len(tokens) > 1:
-        yt_scrap.continuation_token = tokens[2]['token']
-    if yt_scrap.continuation_token:
-        await yt_scrap.get_data_from_page_with_popular_video_data(channel_name=channel_name, token=yt_scrap.continuation_token)
+    competitors = yt_scrap.competitors_list
 
+    for competitor in competitors:
+        if competitor.lower() != channel_name.lower():
+            try:
+                for _ in range(MAX_RETRIES):
+                    try:
+                        await yt_scrap.parse_concurence(competitor)
+                        break
+                    except Exception as e:
+                        print(f"An error occurred for competitor {competitor}: {e}")
+                        await asyncio.sleep(DELAY_BETWEEN_RETRIES)
+            except Exception as e:
+                print(f"An error occurred for competitor {competitor}: {e}")
 
-    d = yt_scrap.dict_channel_videos
-    # await yt_scrap.close_session()
-
-    yt_scrap.dict_channel_videos[channel_name]['description'] = await get_description(yt_scrap.dict_channel_videos[channel_name])
-
-    # только для главного канала
-    yt_scrap.dict_channel_videos[channel_name]['key_words'] = await get_keywords(yt_scrap.dict_channel_videos[channel_name])
-    print('YA BABY main file here')
-    # print(yt_scrap.dict_channel_videos[channel_name]['description'])
-    # print(yt_scrap.dict_channel_videos[channel_name]['key_words'])
-
-    await yt_scrap.get_YT_search_html(yt_scrap.dict_channel_videos[channel_name]['key_words'])
-    dict_YT = yt_scrap.data_with_YT_search
-    # print(yt_scrap.data_with_popular_video)
-    print(json.dumps(dict_YT, indent=4))
-    print(yt_scrap.competitors_list)
     await yt_scrap.close_session()
 
+    all_d = yt_scrap.dict_channel_videos
+    print(json.dumps(all_d, indent=4))
+    with open('data.json', 'w', encoding='utf-8') as f:
+        json.dump(all_d, f, ensure_ascii=False, indent=4)
+
+
 # Запускаем асинхронный код
-asyncio.run(general_func())
+asyncio.run(general_func('thefugitiveofficial'))
 # https://www.youtube.com//watch?v=qmvDrQoLz8g
