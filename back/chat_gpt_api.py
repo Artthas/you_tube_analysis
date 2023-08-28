@@ -6,6 +6,9 @@ from aiohttp import ClientSession
 import re
 from dotenv import load_dotenv
 import json
+
+
+
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 # openai.api_key = key2
@@ -24,9 +27,12 @@ def format_keywords(content):
 
     return keywords_string
 
-
-async def get_keywords(text_array):
-    text = ', '.join(text_array)
+async def get_description(info_dict: dict):
+    logger.info('start crate description')
+    top_new = [item['title'] for item in info_dict['top_new_videos']]
+    top_pop = [item['title'] for item in info_dict['top_popular_videos']]
+    all_top = top_pop + top_new
+    text = ', '.join(all_top)
     # print(text)
     # Шаг 1: Получаем описание канала на основе заголовков видео
     description_completion = await openai.ChatCompletion.acreate(
@@ -41,7 +47,12 @@ async def get_keywords(text_array):
         ]
     )
     description = description_completion.choices[0].message['content']
+    return description
 
+
+async def get_keywords(info_dict: dict):
+    logger.info('start crate key words')
+    description = info_dict['description']
     # Шаг 2: Генерируем ключевые слова на основе полученного описания
     keywords_completion = await openai.ChatCompletion.acreate(
         model="gpt-4",
@@ -52,7 +63,7 @@ async def get_keywords(text_array):
         ]
     )
     keywords = keywords_completion.choices[0].message['content']
-    return {"formatted_keywords": keywords, "first_titles": text, 'description': description}
+    return keywords
 
 
 

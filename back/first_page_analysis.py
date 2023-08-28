@@ -356,6 +356,8 @@ async def general_func(channel_name, proxy_url):
             if len(tokens) > 1:
                 token_to_popular = tokens[2]['token']
                 popular_titles_dict = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular, proxy_url=proxy_url)
+                print(popular_titles_dict)
+                print('OKOKOKOKOKOKOKOKOK')
             else:
                 popular_titles_dict = {'video_titles': [], 'videos': []}
 
@@ -370,26 +372,3 @@ async def general_func(channel_name, proxy_url):
 
 
 
-
-# async def general_func(channel_name, proxy_url):
-#     retry_count = 0
-#     while retry_count < 20:  # Повторяем до 20 раз
-#         try:
-#             data = await get_channel_data(channel_name=channel_name, proxy_url=proxy_url)
-#
-#             # ПОКА ЧТО отключил использования встроенных ключей
-#             video_titles_first = find_video_titles(data, max_titles=15)
-#             first_titles_list = find_video_titles_url_thumb(data, max_titles=15)
-#             tokens = find_continuation_token(input_dict=data, target_key='continuationCommand')
-#             popular_titles = []
-#             if len(tokens) > 1:
-#                 token_to_popular = tokens[2]['token']
-#                 popular_titles = await find_popular_video_titles(channel_name=channel_name, token=token_to_popular, proxy_url=proxy_url)
-#             print(json.dumps(popular_titles, indent=4))
-#             all_titles = video_titles_first + popular_titles['video_titles']
-#             all_titles_to_front = first_titles_list + popular_titles['videos']
-#             keys = await get_keywords(all_titles)
-#             return [keys, all_titles_to_front]
-#         except aiohttp.ClientProxyConnectionError:
-#             retry_count += 1
-#             await asyncio.sleep(5)  # Задержка 5 секунд перед следующей попыткой
