@@ -274,9 +274,18 @@ class YouTubeScraper:
         if len(self.competitors_list) > 0:
             for competitor in self.competitors_list:
                 competitor_name = competitor.lower()
-                self.create_session()
+                await self.get_page_with_new_videos_data(channel_name=competitor_name)
+                self.page_with_new_videos_analysis()
+                tokens = find_continuation_token(self.data_with_new_video, target_key='continuationCommand')
+                if len(tokens) > 1:
+                    self.continuation_token = tokens[2]['token']
+                if self.continuation_token:
+                    await self.get_data_from_page_with_popular_video_data(channel_name=competitor_name,
+                                                                              token=self.continuation_token)
+                self.dict_channel_videos[competitor_name]['description'] = await get_description(
+                    self.dict_channel_videos[competitor_name])
 
-        pass
+
 
     # Функции из parse_youtube_search.py
 
