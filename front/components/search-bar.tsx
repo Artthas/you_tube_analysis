@@ -24,7 +24,7 @@ export default function SearchBar() {
   const handleFormSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    simulateReqServer(dispatch, mockData);
+    // simulateReqServer(dispatch, mockData);
 
     try {
       dispatch({ type: 'SET_SEARCH_RESULT', payload: {
