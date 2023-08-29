@@ -12,7 +12,7 @@ import json
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 # openai.api_key = key2
-# Инициализация логгера
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,6 @@ async def get_description(info_dict: dict):
     top_pop = [item['title'] for item in info_dict['top_popular_videos']]
     all_top = top_pop + top_new
     text = ', '.join(all_top)
-    # print(text)
     # Шаг 1: Получаем описание канала на основе заголовков видео
     description_completion = await openai.ChatCompletion.acreate(
         model="gpt-4",

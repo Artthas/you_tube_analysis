@@ -13,10 +13,9 @@ from chat_gpt_api import *
 
 class YouTubeScraper:
     def __init__(self, first_channel_name):
-        # Инициализация атрибутов и настроек
         self.local_ip = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
         self.ip_rotating = 'http://83.149.70.159:13012'
-        self.proxy_url = self.ip_rotating  # сюда записать какой использую
+        self.proxy_url = self.local_ip  # сюда записать какой использую
         self.session = None
 
 
@@ -72,7 +71,6 @@ class YouTubeScraper:
                     elif response.status != 200:
                         raise HTTPException(status_code=response.status, detail="Failed to get data from YouTube")
 
-                    # Парсинг HTML с использованием BeautifulSoup
                     soup = BeautifulSoup(html, 'lxml')
                     scripts = soup.find_all('script')
                     # Поиск скрипта, содержащего ytInitialData
@@ -95,7 +93,6 @@ class YouTubeScraper:
                 else:
                     raise  # Если это была последняя попытка, выбрасываем исключение
 
-    # Функции из first_page_analysis.py
     def page_with_new_videos_analysis(self):
         path_to_contents = [
             "contents", "twoColumnBrowseResultsRenderer", "tabs", 1, "tabRenderer",
@@ -382,6 +379,6 @@ async def general_func(channel_name1):
     #     json.dump(final_json, f, ensure_ascii=False, indent=4)
 
 
-# Запускаем асинхронный код
+
 # asyncio.run(general_func('thefugitiveofficial'))
 # https://www.youtube.com//watch?v=qmvDrQoLz8g
