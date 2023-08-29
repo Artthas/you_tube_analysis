@@ -144,7 +144,7 @@ class YouTubeScraper:
                 'all_popular_videos' :None,
                 'top_popular_videos': None
             }
-
+            
 
         except Exception as e:
             print(f"An error occurred in first_page_analysis: {e}")
@@ -287,26 +287,6 @@ class YouTubeScraper:
         #     self.dict_channel_videos[competitor_name])
 
 
-
-    # Функции из parse_youtube_search.py
-
-
-    def return_json_dict(self, content):
-        # Ваш код
-        pass
-
-    def extract_video_data(self, json_data, index):
-        # Ваш код
-        pass
-
-    def get_nested(self, data, path):
-        # Ваш код
-        pass
-
-    def make_json(self, json_data, quantity):
-        # Ваш код
-        pass
-
     async def general_YT(self, search_query, quantity, proxy_url):
         connector = ProxyConnector.from_url(proxy_url)
         async with aiohttp.ClientSession(connector=connector) as session:
@@ -314,24 +294,11 @@ class YouTubeScraper:
             json_data = self.return_json_dict(content)
             return self.make_json(json_data, quantity)
 
-    # Функции из utils.py
-    def some_util_function(self):
-        # Ваш код
-        pass
 
-    # Функции из for_popular_video.py
-    def for_popular_video(self):
-        # Ваш код
-        pass
-
-
-
-# DaFuqBoom хрень канал
 # thefugitiveofficial   rapdailyofficial
 
 async def general_func(channel_name1):
     '''
-
     :param channel_name1:
     :return:
     '''
@@ -397,11 +364,24 @@ async def general_func(channel_name1):
     await yt_scrap.close_session()
 
     all_d = yt_scrap.dict_channel_videos
-    print(json.dumps(all_d, indent=4))
-    with open('data.json', 'w', encoding='utf-8') as f:
-        json.dump(all_d, f, ensure_ascii=False, indent=4)
+    try:
+        true_competitors = await find_concurence(all_d, channel_name)
+    except:
+        logger.error('ERROR IN  FIND true_competitors')
+        true_competitors = []
+
+    try:
+        final_json = await create_ideas_by_channal(dict_with_all_videos=all_d, main_channel_name=channel_name,
+                                                   competitors_list=true_competitors)
+    except Exception as e:
+        logger.error(f"can't GENERATE {e}")
+        final_json = None
+
+    return final_json
+    # with open('data.json', 'w', encoding='utf-8') as f:
+    #     json.dump(final_json, f, ensure_ascii=False, indent=4)
 
 
 # Запускаем асинхронный код
-asyncio.run(general_func('thefugitiveofficial'))
+# asyncio.run(general_func('thefugitiveofficial'))
 # https://www.youtube.com//watch?v=qmvDrQoLz8g
