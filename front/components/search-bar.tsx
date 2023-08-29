@@ -52,14 +52,14 @@ export default function SearchBar() {
         dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
         throw new Error('Ошибка сети');
       }
-      const data = await response.json();
-      console.log(data);
+      const { final_json } = await response.json();
+      console.log(final_json);
       
-      if (!data) {
+      if (!final_json) {
         dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
       }
 
-      dispatch({ type: 'SET_SEARCH_RESULT', payload: data });
+      dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
     } catch (error) {
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
       dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
