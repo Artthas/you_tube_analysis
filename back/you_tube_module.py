@@ -16,7 +16,7 @@ class YouTubeScraper:
         # Инициализация атрибутов и настроек
         self.local_ip = 'http://VxQpcz:4cb5aA@196.16.108.161:8000'
         self.ip_rotating = 'http://83.149.70.159:13012'
-        self.proxy_url = self.local_ip  # сюда записать какой использую
+        self.proxy_url = self.ip_rotating  # сюда записать какой использую
         self.session = None
 
 
