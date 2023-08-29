@@ -1,11 +1,10 @@
 .main {
   display: flex;
   justify-content: space-between;
-  column-gap: 100px;
-  width: 70%;
-  max-width: 800px;
+  column-gap: 50px;
   border-top: 1px solid #b6c9dc;
   padding-top: 40px;
+  margin: 0 40px;
 }
 
 .main-video-list {
@@ -55,6 +54,7 @@
 
 .main-idea-list {
   list-style: none;
+  flex: 1;
 }
 
 .main-idea-item {

@@ -11,6 +11,8 @@ export default function SearchResult() {
 
   const { state: { searchResult, isResultLoading, isResultLoadingError } } = useContext(GlobalContext);
 
+  const { main_channel, concurrent_channels } = searchResult;
+
   if (isResultLoading) {
     return <Loading />;
   }
@@ -19,7 +21,7 @@ export default function SearchResult() {
     return <div className={styles['error-message']}>An error occurred while loading the results. Please try again.</div>;
   }
 
-  if (!searchResult.all_this_shit_is_beacuse_of_this_youtube_channel) {
+  if (main_channel.channel_name.length === 0) {
     return <></>;
   }
 
@@ -44,13 +46,65 @@ export default function SearchResult() {
         )}
       </ul> */}
       <ul className={styles['main-idea-list']}>
-        {Object.values(searchResult.generated_ideas).map((item) =>
-          <li className={styles['main-idea-item']} key={item?.description}>
+        {main_channel.ideas_by_top_new.map((item) =>
+          <li className={styles['main-idea-item']} key={item?.Description}>
             <div className={styles['main-idea-item-wrapper']}>
               <p>Titles:</p>
-              <p>{item.titles.map((str) => <span key={str}>- {str}</span>)}</p>
+              <p>
+                <span>- {item['Main Title']}</span>
+                <span>- {item['Alternative Title 1']}</span>
+                <span>- {item['Alternative Title 2']}</span>
+              </p>
               <p>Description:</p>
-              <p>{item.description}</p>
+              <p>{item.Description}</p>
+            </div>
+          </li>
+        )}
+      </ul>
+      <ul className={styles['main-idea-list']}>
+        {main_channel.ideas_by_top_popular.map((item) =>
+          <li className={styles['main-idea-item']} key={item?.Description}>
+            <div className={styles['main-idea-item-wrapper']}>
+              <p>Titles:</p>
+              <p>
+                <span>- {item['Main Title']}</span>
+                <span>- {item['Alternative Title 1']}</span>
+                <span>- {item['Alternative Title 2']}</span>
+              </p>
+              <p>Description:</p>
+              <p>{item.Description}</p>
+            </div>
+          </li>
+        )}
+      </ul>
+      <ul className={styles['main-idea-list']}>
+        {concurrent_channels.ideas_by_top_new.map((item) =>
+          <li className={styles['main-idea-item']} key={item?.Description}>
+            <div className={styles['main-idea-item-wrapper']}>
+              <p>Titles:</p>
+              <p>
+                <span>- {item['Main Title']}</span>
+                <span>- {item['Alternative Title 1']}</span>
+                <span>- {item['Alternative Title 2']}</span>
+              </p>
+              <p>Description:</p>
+              <p>{item.Description}</p>
+            </div>
+          </li>
+        )}
+      </ul>
+      <ul className={styles['main-idea-list']}>
+        {concurrent_channels.ideas_by_top_popular.map((item) =>
+          <li className={styles['main-idea-item']} key={item?.Description}>
+            <div className={styles['main-idea-item-wrapper']}>
+              <p>Titles:</p>
+              <p>
+                <span>- {item['Main Title']}</span>
+                <span>- {item['Alternative Title 1']}</span>
+                <span>- {item['Alternative Title 2']}</span>
+              </p>
+              <p>Description:</p>
+              <p>{item.Description}</p>
             </div>
           </li>
         )}

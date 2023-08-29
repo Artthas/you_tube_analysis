@@ -2,9 +2,9 @@
 @import url('https://fonts.googleapis.com/css?family=Hind&display=swap');
 
 .main {
-  width: 70%;
-  max-width: 800px;
-  margin: 40px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 40px 40px 20px 40px;
 }
 
 .form-channel-name {
@@ -27,7 +27,7 @@
     -2px -2px 6px rgba(#fff, .6),
     2px 2px 12px #c8d8e7;
   width: 380px;
-  margin: auto;
+  margin: 0px auto 60px auto;
 }
 
 .form {
@@ -127,9 +127,12 @@
   list-style: none;
   display: flex;
   justify-content: space-between;
+  column-gap: 50px;
 }
 
 .table-title-item {
+  flex: 1;
+  text-align: center;
   color: #6d7f8f;
   font-weight: 1000;
   font-family: "Orbitron", sans-serif;

@@ -9,39 +9,57 @@ import { simulateReqServer } from '@/utils';
 
 export default function SearchBar() {
 
-  const { state: { youtubeChannelName, searchResult }, dispatch } = useContext(GlobalContext);
+  const { state: { searchResult }, dispatch } = useContext(GlobalContext);
 
-  const [youtubeChannelNameTemp, setYoutubeChannelNameTemp] = useState('');
+  const { main_channel, concurrent_channels } = searchResult;
+
+  const [youtubeChannelName, setYoutubeChannelName] = useState('');
 
   const formInputRef = useRef<HTMLInputElement>(null);
 
   const handleFormInputChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    setYoutubeChannelNameTemp(evt.target.value);
+    setYoutubeChannelName(evt.target.value);
   }
 
   const handleFormSubmit = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
 
-    // simulateReqServer(dispatch, mockData);
+    simulateReqServer(dispatch, mockData);
 
     try {
-      dispatch({ type: 'SET_YOUTUBE_CHANNEL_NAME', payload: '' });
+      dispatch({ type: 'SET_SEARCH_RESULT', payload: {
+        main_channel: {
+          channel_name: [],
+          top_new: [],
+          top_popular: [],
+          main_description: '',
+          main_keys: '',
+          ideas_by_top_new: [],
+          ideas_by_top_popular: []
+        },
+        concurrent_channels: {
+          channel_name: [],
+          top_new: [],
+          top_popular: [],
+          ideas_by_top_new: [],
+          ideas_by_top_popular: []
+        }
+      } });
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youtubeChannelNameTemp}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youtubeChannelName}`);
       console.log(response);
       if (!response.ok) {
         dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
         dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
         throw new Error('Ошибка сети');
       }
-      const { final_json } = await response.json();
+      const data = await response.json();
       
-      if (final_json === undefined) {
+      if (!data) {
         dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
       }
 
-      dispatch({ type: 'SET_YOUTUBE_CHANNEL_NAME', payload: youtubeChannelNameTemp });
-      dispatch({ type: 'SET_SEARCH_RESULT', payload: final_json });
+      dispatch({ type: 'SET_SEARCH_RESULT', payload: data });
     } catch (error) {
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
       dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
@@ -62,16 +80,18 @@ export default function SearchBar() {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#657789" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="feather feather-search"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
             <div className={styles['form-input-wrapper']}>
-              <input className={styles['form-input']} ref={formInputRef} onChange={handleFormInputChange} value={youtubeChannelNameTemp} placeholder="Here..."/>
+              <input className={styles['form-input']} ref={formInputRef} onChange={handleFormInputChange} value={youtubeChannelName} placeholder="Here..."/>
             </div>
           </div>
-          {youtubeChannelName ? <Link className={styles['form-channel-name']} href={searchResult.all_this_shit_is_beacuse_of_this_youtube_channel}>Channel: <span>{youtubeChannelName}</span></Link> : ''}
+          {main_channel.channel_name.length !== 0 ? <p className={styles['form-channel-name']}>Channel: <span>{main_channel.channel_name}</span></p> : ''}
         </form>
       </div>
-      {/* {youtubeChannelName ? <ul className={styles['table-title-list']}>
-        <li className={styles['table-title-item']}>Videos</li>
-        <li className={styles['table-title-item']}>Ideas</li>
-      </ul> : ''} */}
+      {main_channel.channel_name.length !== 0 ? <ul className={styles['table-title-list']}>
+        <li className={styles['table-title-item']}>By most viewed</li>
+        <li className={styles['table-title-item']}>By latest</li>
+        <li className={styles['table-title-item']}>By most viewed on competitive</li>
+        <li className={styles['table-title-item']}>By latest on competitive</li>
+      </ul> : ''}
     </section>
   )
 }
