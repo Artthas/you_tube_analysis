@@ -47,13 +47,13 @@ export default function SearchBar() {
       } });
       dispatch({ type: 'SET_IS_RESULT_LOADING', payload: true });
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_API_URL}/get_you_tube_by_channel/?channel_name=${youtubeChannelName}`);
-      console.log(response);
       if (!response.ok) {
         dispatch({ type: 'SET_IS_RESULT_LOADING', payload: false });
         dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
         throw new Error('Ошибка сети');
       }
       const data = await response.json();
+      console.log(data);
       
       if (!data) {
         dispatch({ type: 'SET_IS_RESULT_LOADING_ERROR', payload: true });
